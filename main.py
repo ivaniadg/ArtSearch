@@ -2,6 +2,7 @@ import os
 
 from pose_matching import op_utils as op
 from object_detection import od_utils as od
+from color_matching import cm_utils as cm
 
 path = "/home/mortirreke/Desktop/assets/"
 image = "james-mcneill-whistler_the-japanese-dress-1890.jpg"
@@ -12,6 +13,7 @@ image_path = path+image
 
 pose_weight = 1
 object_weight = 1-pose_weight
+
 
 pd_scores = op.pd_get_scores(image_path)
 od_scores = od.od_get_scores(image_path)
