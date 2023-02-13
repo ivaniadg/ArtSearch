@@ -8,26 +8,27 @@
             spinner-color="white"
           />
         </q-card>
-        <q-card class="year-card">
-          <q-card-section>
-        <div class="text-h6 text-center">Timeframe</div>
-        </q-card-section>
-          <q-card-section>lkjgqsdlmkfjlsdfmkgjlkqdsfljkgmsdfjmlkg</q-card-section
-          >
-        </q-card>
+
+        <div class="items-center">
+        <q-btn
+          class="q-mx-lg"
+          label="Search"
+          type="submit"
+          color="primary"
+        /><q-btn
+          class="q-mx-lg"
+          label="Back"
+          size="sm"
+          color="secondary"
+          :to="{ name: 'Index' }"
+        />
+      </div>
       </div>
       <div class="col-md-5 col-sm-12 q-gutter-lg">
         <PoseCard/>
         <ColorCard/>
         <StyleCard/>
-        <q-card class="year-card">
-          <q-card-section>
-            <div class="text-h6 text-center">Pose</div>
-          </q-card-section>
-          <q-card-section
-            >lkjgqsdlmkfjlsdfmkgjlkqdsfljkgmsdfjmlkg</q-card-section
-          >
-        </q-card>
+        <ObjectsCard/>
       </div>
     </div>
   </q-page>
@@ -37,9 +38,10 @@
 import PoseCard from "../components/PoseCard.vue";
 import ColorCard from "../components/ColorCard.vue";
 import StyleCard from "../components/StyleCard.vue";
+import ObjectsCard from "../components/ObjectsCard.vue";
 
 export default {
-  components: { PoseCard, ColorCard, StyleCard },
+  components: { PoseCard, ColorCard, StyleCard, ObjectsCard },
   data() {
     return {};
   },

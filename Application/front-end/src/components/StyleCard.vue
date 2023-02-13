@@ -9,14 +9,13 @@
           :axis="pose"
           @update:value="updateValue"
         ></Slider>
-        <div class="row">
-
-
-
-          <q-chip v-for="(style, index) in detectedStyles" :key="index" removable color="primary" text-color="white">
-          {{style}}
-         </q-chip>
-
+        <div class="row q-px-md">
+          <div class="col-8">
+            <q-chip v-for="(style, index) in detectedStyles" v-model="style.bool" :key="index" removable color="primary" text-color="white">
+              {{style.artstyle}}
+            </q-chip>
+            </div>
+         <q-select class="col-4" outlined v-model="this.selected" :options="allArtstyles" label="Add more artstyles" @update:model-value="addChip" />
         </div>
     </q-card-section>
   </q-card>
@@ -34,15 +33,50 @@ export default defineComponent({
       name: "",
       value: 0.5,
     });
-    const detectedStyles = ref(["modernism", "cubsim"])
+    const allArtstyles = ref([
+      "Modernism",
+      "Cubism",
+      "Impressionism",
+      "Expressionism",
+      "Surrealism",
+      "Abstract Expressionism",
+    ]);
+    const detectedStyles = ref([
+      {
+        artstyle: "Modernism",
+        bool: true,
+      },
+     {
+        artstyle: "Cubism",
+        bool: true,
+      },
+      {
+        artstyle: "Impressionism",
+        bool: true,
+      },
+      {
+        artstyle: "Expressionism",
+        bool: true,
+      },
+    ]);
       return {
       pose,
-      detectedStyles
+      detectedStyles,
+      selected: ref(null),
+      allArtstyles,
      };
   },
   methods: {
     updateValue(axis) {
       this.pose.value = axis.value;
+    },
+    addChip(artstyle) {
+      console.log(artstyle)
+      this.detectedStyles.push({
+        artstyle: artstyle,
+        bool: true,
+      });
+      this.selected = null;
     },
   },
 });

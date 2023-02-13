@@ -34,6 +34,7 @@
           label="Search"
           type="submit"
           color="primary"
+          :to="{ name: 'Results' }"
         /><q-btn
           class="q-mx-lg"
           label="Advanced Options"
