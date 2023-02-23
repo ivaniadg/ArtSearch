@@ -24,7 +24,7 @@ def process_folder(path):
             color_thief = ColorThief(path + image_name)
             palette = color_thief.get_palette(color_count=6)
             print(i)
-            index[image_name] = palette
+            index[path+image_name] = palette
 
     save_data(index)
     return index
@@ -86,6 +86,7 @@ def find_matches2(input_image_path, data):
     results = {}
     # loop over the index
     for (k, palette) in data.items():
+        # print(k)
         # compute the distance between the two histograms
         # using the method and update the results dictionary
         d = compare_colorpalettes(input_palette,palette)
@@ -96,9 +97,7 @@ def find_matches2(input_image_path, data):
 
     results = calculate_percentage(results)
     # print(results)
-
     results = sorted([(v, k) for (k, v) in results], reverse=False)
-
     return results
 
 def plot_hist(hist):
@@ -130,3 +129,7 @@ def compare_colorpalettes(palette1,palette2):
         total_distance += distance
 
     return total_distance
+
+def cm_get_scores(imagepath):
+    x = load_data()
+    return find_matches2(imagepath,x)
