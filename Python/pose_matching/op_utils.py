@@ -220,7 +220,7 @@ def drawKeypoints(pose1:pd.DataFrame, show_image = False, size = 512, image=[]):
 
 def find_best_match(pose1):
     #load all keypoints
-    with open('/home/mortirreke/Desktop/output/keypointsall.pickle', 'rb') as handle:
+    with open('pose_matching/output/keypointsall.pickle', 'rb') as handle:
         poses = pickle.load(handle)
 
     # Calculate every score
@@ -234,6 +234,12 @@ def find_best_match(pose1):
 def pd_get_scores(imagepath):
     image = cv2.imread(imagepath)
 
+    df_array = get_keypoints(image)
+
+    return find_best_match(df_array[0])
+
+
+def get_pose_score(image):
     df_array = get_keypoints(image)
 
     return find_best_match(df_array[0])

@@ -219,3 +219,8 @@ def od_get_scores(imagepath) -> list:
     image = cv2.imread(imagepath)
     objs = get_objects(image)
     return find_matchesVec(objs, x, False)
+
+def get_object_score(image) -> list:
+    x = load_data()
+    objs = get_objects(image)
+    return find_matchesVec(objs, x, False)

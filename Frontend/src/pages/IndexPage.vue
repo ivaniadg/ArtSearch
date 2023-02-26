@@ -1,10 +1,16 @@
 <template>
   <q-page class="flex flex-center">
+    <q-spinner
+        color="primary"
+        size="3em"
+        v-show="isProcessing"
+      />
     <q-form
       @submit="onSubmit"
       @reset="onReset"
       class="q-gutter-md"
       style="width: 500px"
+      v-show="!isProcessing"
     >
       <q-file
         filled
@@ -30,11 +36,12 @@
       </q-list>
       <div class="center-button">
         <q-btn
+          id="submit"
           class="q-mx-lg"
           label="Search"
           type="submit"
           color="primary"
-          :to="{ name: 'Results' }"
+
         /><q-btn
           class="q-mx-lg"
           label="Advanced Options"
@@ -60,11 +67,15 @@
 <script>
 import { defineComponent, ref } from "vue";
 import Slider from "../components/Slider.vue";
+import axios from "axios";
+import { useQuasar } from "quasar";
 
 export default defineComponent({
   components: { Slider },
   name: "IndexPage",
   setup() {
+    const $q = useQuasar()
+
     const axes = ref({
       pose: {
         name: "Pose",
@@ -83,11 +94,46 @@ export default defineComponent({
         value: 0.5,
       },
     });
-    return { axes, picture: ref(null) };
+    return { axes, picture: ref(null), isProcessing: ref(false) };
   },
   methods: {
     updateValue(axis) {
       this.axes[axis.name.toLowerCase()].value = axis.value;
+    },
+    onSubmit() {
+      const formData = new FormData();
+      formData.append("image", this.picture);
+      formData.append("pose_weight", this.axes.pose.value);
+      formData.append("color_weight", this.axes.color.value);
+      formData.append("style_weight", this.axes.style.value);
+      formData.append("object_weight", this.axes.objects.value);
+
+      this.isProcessing = true;
+      axios
+        .post("http://127.0.0.1:5000/search", formData)
+        .then(response => {
+          // handle successful response
+          console.log(response);
+          this.isProcessing = false;
+          //redirect to results page
+          this.$router.push({
+            name: "Results",
+            params: {
+              results: response.data,
+            },
+          });
+        })
+        .catch(error => {
+          // handle error
+          this.isProcessing = false;
+          this.$q.notify({
+            message: "Error: " + error,
+            color: "negative",
+            position: "top",
+            timeout: 2000,
+          });
+          console.log(error);
+        });
     },
   },
 });
