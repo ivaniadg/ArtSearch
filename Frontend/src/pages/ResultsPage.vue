@@ -15,7 +15,7 @@
       <q-expansion-item label="Picasso" default-opened>
         <template v-slot:header>
           <q-item-section>
-            <div class="row justify-center">
+            <div class="row justify-left">
               <h5 class="q-my-none">Monet</h5>
             </div>
           </q-item-section>
