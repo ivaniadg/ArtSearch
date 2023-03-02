@@ -47,7 +47,7 @@
           label="Advanced Options"
           size="sm"
           color="secondary"
-          :to="{ name: 'AdvancedSettings' }"
+          @click="onAdvancedSettings()"
         />
       </div>
     </q-form>
@@ -107,7 +107,6 @@ export default defineComponent({
       formData.append("color_weight", this.axes.color.value);
       formData.append("style_weight", this.axes.style.value);
       formData.append("object_weight", this.axes.objects.value);
-
       this.isProcessing = true;
       axios
         .post("http://127.0.0.1:5000/search", formData)
@@ -118,8 +117,8 @@ export default defineComponent({
           //redirect to results page
           this.$router.push({
             name: "Results",
-            params: {
-              results: response.data,
+            state: {
+              results: response.data
             },
           });
         })
@@ -135,6 +134,35 @@ export default defineComponent({
           console.log(error);
         });
     },
+    onAdvancedSettings() {
+    const formData = new FormData();
+    formData.append("image", this.picture);
+    axios
+        .post("http://127.0.0.1:5000/advancedSearch", formData)
+        .then(response => {
+          // handle successful response
+          console.log(response);
+          this.isProcessing = false;
+          //redirect to results page
+          this.$router.push({
+            name: "AdvancedSettings",
+            state: {
+              advancedSettings: response.data
+            },
+          });
+        })
+        .catch(error => {
+          // handle error
+          this.isProcessing = false;
+          this.$q.notify({
+            message: "Error: " + error,
+            color: "negative",
+            position: "top",
+            timeout: 2000,
+          });
+          console.log(error);
+        });
+  },
   },
 });
 </script>

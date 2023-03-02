@@ -21,14 +21,14 @@
           </q-item-section>
         </template>
 
-        <div class="row q-gutter-sm q-ma-sm justify-center">
+        <div class="row q-gutter-sm q-ma-sm justify-left">
           <q-card
-            v-for="(painting, i) in paintings"
+            v-for="(result, i) in results"
             :key="i"
-            @click="openDialog(painting)"
+            @click="openDialog(result)"
             class="image-card"
           >
-            <img :src="painting" fit style="height: 140px" />
+            <img :src="'assets/' + result.image_name" fit style="height: 140px" />
           </q-card>
         </div>
       </q-expansion-item>
@@ -85,30 +85,29 @@
 
 <script>
 import { defineComponent, ref } from "vue";
+
 export default defineComponent({
   name: "IndexPage",
   setup() {
-    const paintings = [];
-
-    for (let i = 0; i < 30; i++) {
-      const random1 = Math.floor(Math.random() * 300) + 50;
-      const random2 = Math.floor(Math.random() * 100) + 50;
-      //push random image to paintings array
-      paintings.push("https://picsum.photos/" + random1 + "/" + random2 + "");
-    }
+    const results = history.state.results;
     const selected = ref("Artist");
     const options = ["Artist", "Artstyle", "Date", "Relevance"];
     const dialogImage = ref(null);
+    const poseMatch = ref(0.0);
+    const colorMatch = ref(0.0);
+    const styleMatch = ref(0.0);
+    const objectMatch = ref(0.0);
     const dialogOpen = ref(false);
-    const poseMatch = ref(0.7);
-    const colorMatch = ref(0.3);
-    const styleMatch = ref(0.5);
-    const objectMatch = ref(0.1);
-    return { paintings, options, selected, dialogImage, dialogOpen, poseMatch, colorMatch, styleMatch, objectMatch };
+    return {options, selected, dialogImage, dialogOpen , results, poseMatch, colorMatch, styleMatch, objectMatch};
   },
   methods: {
-    openDialog(image) {
-      this.dialogImage = image;
+    openDialog(result) {
+
+      this.dialogImage = "/assets/"+result.image_name;
+      this.colorMatch = result.color_score;
+      this.poseMatch = result.pose_score;
+      this.styleMatch = result.style_score;
+      this.objectMatch = result.object_score;
       this.dialogOpen = true;
     },
     closeDialog() {

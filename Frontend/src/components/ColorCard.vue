@@ -13,7 +13,7 @@
           v-bind:key="index"
         >
           <q-checkbox v-model="color.bool" />
-          <div class="box" :style="{ backgroundColor: color.color }"></div>
+          <div class="box" :style="{ backgroundColor:  'rgb(' + color.color[0] + ','+ color.color[1]+ ','+ color.color[2]+')'}"></div>
         </div>
         <!-- <q-btn dense color="primary" icon="add" size="md"/> -->
       </div>
@@ -37,33 +37,19 @@ import Slider from "../components/Slider.vue";
 
 export default defineComponent({
   components: { Slider },
+  props: {
+    colors: {
+      required: true,
+    },
+  },
   name: "ColorCard",
   setup() {
     const pose = ref({
       name: "",
       value: 0.5,
     });
-    const colors = ref({
-      color1: {
-        color: "#7415",
-        bool: true,
-      },
-      color2: {
-        color: "#789615",
-        bool: true,
-      },
-      color3: {
-        color: "#654321",
-        bool: true,
-      },
-      color4: {
-        color: "#852369",
-        bool: true,
-      },
-    });
     return {
       pose,
-      colors,
       color: "red",
     };
   },

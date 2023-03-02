@@ -130,10 +130,18 @@ def compare_colorpalettes(palette1,palette2):
 
     return total_distance
 
-def cm_get_scores(imagepath):
-    x = load_data()
-    return find_matches2(imagepath,x)
-
 def get_color_score(image):
     x = load_data()
     return find_matches2(image,x)
+
+def analyze_colors(image):
+    color_thief = ColorThief(image)
+    palette = color_thief.get_palette(color_count=6)
+    #add booleans to palette
+    results = []
+    for color in palette:
+        results.append({"color": color, "bool": True})
+
+    return results
+
+

@@ -12,6 +12,8 @@ from scipy import spatial
 import matplotlib.pyplot as plt
 sys.path.append("/usr/local/python")
 from openpose import pyopenpose as op
+import base64
+
 def get_keypoints(image) -> list[pd.DataFrame]:
     # Flags
     parser = argparse.ArgumentParser()
@@ -62,16 +64,15 @@ def get_keypoints(image) -> list[pd.DataFrame]:
             dataframe = pd.DataFrame(output_sub_arr.values(), columns=['x', 'y', 'path'],
                                      index=list(index_names.values()))
             keypoints.append(dataframe)
-    else:
-        print("no keypoints detected for :" + image)
-        # return None;
+    # else:
+    #     print("no keypoints detected for :" + image)
+    #     # return None;
 
     return keypoints
 
 def similarity_score(pose1:pd.DataFrame, pose2:pd.DataFrame):
     p1 = []
     p2 = []
-
     # Remove keypoints when keypoint values is none
     pose1_df = pd.DataFrame(pose1, columns=['x','y'])
     pose2_df = pd.DataFrame(pose2, columns=['x','y'])
@@ -113,8 +114,28 @@ def similarity_score(pose1:pd.DataFrame, pose2:pd.DataFrame):
     euclideanDistance = math.sqrt(2 * cosineDistance)
 
     return 1 - cosineDistance
+def analyzePose(image):
+    poselist = get_keypoints(image)
 
-def drawKeypoints(pose1:pd.DataFrame, show_image = False, size = 512, image=[]):
+    colors = [(255,0,0),(0,255,0),(0,0,255),(0,255,255),(255,0,255),(255,255,0)]
+
+
+
+
+    for i, pose in enumerate(poselist):
+        image = drawKeypoints(pose, show_image=True, image=image, color=colors[i])
+    # enode image as base64 to transfer to frontend
+    _, img_encoded = cv2.imencode('.png', image)
+    img_base64 = base64.b64encode(img_encoded).decode('utf-8')
+    #create person strings
+    persons = []
+    for i, pose in enumerate(poselist):
+        persons.append({"name" : "Person" + str(i+1), "bool": True})
+
+    return {"image":img_base64, "persons":persons}
+
+
+def drawKeypoints(pose1:pd.DataFrame, show_image = False, size = 512, image=[], color=(0,0,255)):
     path = pose1.iloc[0]['path']
     if show_image and path != "":
         canvas = cv2.imread(pose1.iloc[0]['path'])
@@ -151,83 +172,115 @@ def drawKeypoints(pose1:pd.DataFrame, show_image = False, size = 512, image=[]):
     RHeel =  (pose1.loc["RHeel"]['x'],pose1.loc["RHeel"]['y'])
 
     if nose != (0,0) and neck != (0,0):
-        cv2.line(canvas,nose,neck, (0, 0, 255), 3)
+        cv2.line(canvas,nose,neck, color, 3)
     if REye != (0,0) and nose != (0,0):
-        cv2.line(canvas,nose,REye, (0, 0, 255), 3)
+        cv2.line(canvas,nose,REye, color, 3)
     if REye != (0,0) and REar != (0,0):
-        cv2.line(canvas,REar,REye, (0, 0, 255), 3)
+        cv2.line(canvas,REar,REye, color, 3)
 
     if LEye != (0,0) and nose != (0,0):
-        cv2.line(canvas,nose,LEye, (0, 0, 255), 3)
+        cv2.line(canvas,nose,LEye, color, 3)
     if LEye != (0,0) and LEar != (0,0):
-        cv2.line(canvas,LEar,LEye, (0, 0, 255), 3)
+        cv2.line(canvas,LEar,LEye, color, 3)
 
     # spine
     if MidHip != (0,0) and neck != (0,0):
-        cv2.line(canvas,MidHip,neck, (0, 0, 255), 3)
+        cv2.line(canvas,MidHip,neck, color, 3)
     if MidHip != (0,0) and RHip != (0,0):
-        cv2.line(canvas,MidHip,RHip, (0, 0, 255), 3)
+        cv2.line(canvas,MidHip,RHip, color, 3)
     if MidHip != (0,0) and LHip != (0,0):
-        cv2.line(canvas,MidHip,LHip, (0, 0, 255), 3)
+        cv2.line(canvas,MidHip,LHip, color, 3)
 
     # Right hand
     if RShoulder != (0,0) and neck != (0,0):
-        cv2.line(canvas,RShoulder,neck, (0, 0, 255), 3)
+        cv2.line(canvas,RShoulder,neck, color, 3)
     if RElbow != (0,0) and RShoulder != (0,0):
-        cv2.line(canvas,RShoulder,RElbow, (0, 0, 255), 3)
+        cv2.line(canvas,RShoulder,RElbow, color, 3)
     if RWrist != (0,0) and RElbow != (0,0):
-        cv2.line(canvas,RWrist,RElbow, (0, 0, 255), 3)
+        cv2.line(canvas,RWrist,RElbow, color, 3)
 
 
     # Left arm
     if neck != (0,0) and LShoulder != (0,0):
-        cv2.line(canvas,LShoulder,neck, (0, 0, 255), 3)
+        cv2.line(canvas,LShoulder,neck, color, 3)
     if LElbow != (0,0) and LShoulder != (0,0):
-        cv2.line(canvas,LShoulder,LElbow, (0, 0, 255), 3)
+        cv2.line(canvas,LShoulder,LElbow, color, 3)
     if LWrist != (0,0) and LElbow != (0,0):
-        cv2.line(canvas,LWrist,LElbow, (0, 0, 255), 3)
+        cv2.line(canvas,LWrist,LElbow, color, 3)
 
     #Left leg
     if LKnee != (0,0) and LHip != (0,0):
-        cv2.line(canvas,LKnee,LHip, (0, 0, 255), 3)
+        cv2.line(canvas,LKnee,LHip, color, 3)
     if LKnee != (0,0) and LAnkle != (0,0):
-        cv2.line(canvas,LKnee,LAnkle, (0, 0, 255), 3)
+        cv2.line(canvas,LKnee,LAnkle, color, 3)
     if LAnkle != (0,0) and LHeel != (0,0):
-        cv2.line(canvas,LHeel,LAnkle, (0, 0, 255), 3)
+        cv2.line(canvas,LHeel,LAnkle, color, 3)
     if LAnkle != (0,0) and LHeel != (0,0):
-        cv2.line(canvas,LBigToe,LAnkle, (0, 0, 255), 3)
+        cv2.line(canvas,LBigToe,LAnkle, color, 3)
     if LAnkle != (0,0) and LHeel != (0,0):
-        cv2.line(canvas,LBigToe,LAnkle, (0, 0, 255), 3)
+        cv2.line(canvas,LBigToe,LAnkle, color, 3)
     if LSmallToe != (0,0) and LBigToe != (0,0):
-        cv2.line(canvas,LBigToe,LSmallToe, (0, 0, 255), 3)
+        cv2.line(canvas,LBigToe,LSmallToe, color, 3)
 
     # Right leg
     if RKnee != (0,0) and RHip != (0,0):
-        cv2.line(canvas,RKnee,RHip, (0, 0, 255), 3)
+        cv2.line(canvas,RKnee,RHip, color, 3)
     if RKnee != (0,0) and RAnkle != (0,0):
-        cv2.line(canvas,RKnee,RAnkle, (0, 0, 255), 3)
+        cv2.line(canvas,RKnee,RAnkle, color, 3)
     if RAnkle != (0,0) and RHeel != (0,0):
-        cv2.line(canvas,RHeel,RAnkle, (0, 0, 255), 3)
+        cv2.line(canvas,RHeel,RAnkle, color, 3)
     if RAnkle != (0,0) and RHeel != (0,0):
-        cv2.line(canvas,RBigToe,RAnkle, (0, 0, 255), 3)
+        cv2.line(canvas,RBigToe,RAnkle, color, 3)
     if RAnkle != (0,0) and RHeel != (0,0):
-        cv2.line(canvas,RBigToe,RAnkle, (0, 0, 255), 3)
+        cv2.line(canvas,RBigToe,RAnkle, color, 3)
     if RSmallToe != (0,0) and RBigToe != (0,0):
-        cv2.line(canvas,RBigToe,RSmallToe, (0, 0, 255), 3)
+        cv2.line(canvas,RBigToe,RSmallToe, color, 3)
 
     return canvas
 
 
-def find_best_match(pose1):
+# def find_best_match(pose1):
+#     #load all keypoints
+#     with open('pose_matching/output/keypointsall.pickle', 'rb') as handle:
+#         poses = pickle.load(handle)
+#
+#     # Calculate every score
+#     similarity_scores = []
+#     for pose2 in poses:
+#         score = similarity_score(pose1, pose2)
+#         similarity_scores.append((score, pose2.iloc[0].path))
+#     similarity_scores.sort(key=lambda tup: tup[0], reverse=True)
+#     return similarity_scores
+
+
+# def find_best_match(pose_list):
+#     #load all keypoints
+#     with open('pose_matching/output/keypointsall.pickle', 'rb') as handle:
+#         all_poses = pickle.load(handle)
+#
+#     # Calculate every score
+#     similarity_scores = []
+#     for pose1 in all_poses:
+#         score = 0
+#         for pose2 in pose_list:
+#             score += similarity_score(pose1, pose2)
+#         similarity_scores.append((score, pose1.iloc[0].path))
+#     return similarity_scores
+
+
+def find_best_match(pose_list):
     #load all keypoints
     with open('pose_matching/output/keypointsall.pickle', 'rb') as handle:
-        poses = pickle.load(handle)
+        all_poses = pickle.load(handle)
 
     # Calculate every score
     similarity_scores = []
-    for pose2 in poses:
-        score = similarity_score(pose1, pose2)
-        similarity_scores.append((score, pose2.iloc[0].path))
+    for pose1 in pose_list:
+        score = 0
+        for pose2 in all_poses:
+            score += similarity_score(pose1, pose2)
+            similarity_scores.append((score, pose2.iloc[0].path))
+    #sort on scores descending scores
     similarity_scores.sort(key=lambda tup: tup[0], reverse=True)
     return similarity_scores
 
@@ -241,5 +294,7 @@ def pd_get_scores(imagepath):
 
 def get_pose_score(image):
     df_array = get_keypoints(image)
-
-    return find_best_match(df_array[0])
+    if not df_array:
+        return 0
+    else:
+        return find_best_match(df_array)

@@ -11,7 +11,7 @@
           class="col-4"
           v-for="(object, index) in objects"
           :key="index"
-          :label="object.name"
+          :label="object.label"
           v-model="object.bool"
         />
       </div>
@@ -26,36 +26,18 @@ import Slider from "../components/Slider.vue";
 export default defineComponent({
   components: { Slider },
   name: "ObjectsCard",
+  props: {
+    objects: {
+      required: true,
+    },
+  },
   setup() {
     const pose = ref({
       name: "",
       value: 0.5,
     });
-    const objects = ref([
-      {
-        name: "Tree",
-        bool: true,
-      },
-      {
-        name: "Ball",
-        bool: true,
-      },
-      {
-        name: "Tie",
-        bool: true,
-      },
-      {
-        name: "Dog",
-        bool: true,
-      },
-      {
-        name: "phone",
-        bool: true,
-      },
-    ]);
     return {
       pose,
-      objects,
     };
   },
   methods: {

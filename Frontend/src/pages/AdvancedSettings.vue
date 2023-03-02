@@ -4,7 +4,7 @@
       <div class="col-md-5 col-sm-12 q-gutter-lg">
         <q-card class="image-card">
           <q-img
-            src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Image_created_with_a_mobile_phone.png/640px-Image_created_with_a_mobile_phone.png"
+            :src="'data:image/png;base64, ' + image"
             spinner-color="white"
           />
         </q-card>
@@ -25,10 +25,10 @@
       </div>
       </div>
       <div class="col-md-5 col-sm-12 q-gutter-lg">
-        <PoseCard/>
-        <ColorCard/>
+        <PoseCard :persons="analyzed_pose.persons" />
+        <ColorCard :colors="analyzed_colors" />
+        <ObjectsCard :objects="analyzed_objects" />
         <StyleCard/>
-        <ObjectsCard/>
       </div>
     </div>
   </q-page>
@@ -43,7 +43,18 @@ import ObjectsCard from "../components/ObjectsCard.vue";
 export default {
   components: { PoseCard, ColorCard, StyleCard, ObjectsCard },
   data() {
-    return {};
+    const analyzed_pose = history.state.advancedSettings.pose;
+    const analyzed_colors = history.state.advancedSettings.colors;
+    // const analyzed_style = history.state.advancedSettings.style;
+    const analyzed_objects = history.state.advancedSettings.objects;
+    const image = analyzed_pose.image
+    return {
+      analyzed_pose,
+      analyzed_colors,
+      // analyzed_style,
+      analyzed_objects,
+      image
+    };
   },
 };
 </script>

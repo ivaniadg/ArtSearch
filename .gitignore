@@ -1,2 +1,3 @@
 /pose_matching/models/
 *.caffemodel
+Frontend/public/assets/

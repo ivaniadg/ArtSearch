@@ -18,7 +18,7 @@ image_path = path+image
 
 pose_weight = 1
 object_weight = 0
-color_weight = 0
+color_weight = 1
 
 pd_scores = op.pd_get_scores(image_path)
 od_scores = od.od_get_scores(image_path)

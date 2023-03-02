@@ -224,3 +224,11 @@ def get_object_score(image) -> list:
     x = load_data()
     objs = get_objects(image)
     return find_matchesVec(objs, x, False)
+
+
+def analyze_objects(image):
+    objects = get_objects(image)
+    results = []
+    for o in objects:
+        results.append({"label": get_label(o), "id": o, "bool": True})
+    return results

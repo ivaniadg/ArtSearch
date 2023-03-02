@@ -10,12 +10,18 @@
           @update:value="updateValue"
         ></Slider>
         <div class="row">
-          <q-checkbox class="col-4" v-for="(person, index) in persons" :key="index" :label="person.name" v-model="person.bool" />
+          <q-checkbox class="col-4" v-for="(person, index) in persons" :key="index" :label="person.name" v-model="person.bool" keep-color :color="index" />
 
         </div>
     </q-card-section>
   </q-card>
 </template>
+
+<style>
+/* define colors */
+
+
+</style>
 
 <script>
 import { defineComponent, ref } from "vue";
@@ -23,33 +29,24 @@ import Slider from "../components/Slider.vue";
 
 export default defineComponent({
   components: { Slider },
+  props: {
+    persons: {
+      type: Object,
+      required: true,
+    },
+  },
   name: "PoseCard",
   setup() {
     const pose = ref({
       name: "",
       value: 0.5,
     });
-    const persons = ref({
-      person1: {
-        name: "person1",
-        bool: true,
-      },
-      person2: {
-        name: "person2",
-        bool: true,
-      },
-      person3: {
-        name: "person3",
-        bool: true,
-      },
-      person4: {
-        name: "person4",
-        bool: true,
-      }})
+    const colors = []
+
       return {
       pose,
-      persons
-     };
+      colors
+    };
   },
   methods: {
     updateValue(axis) {

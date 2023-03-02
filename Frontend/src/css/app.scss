@@ -1,1 +1,32 @@
 // app global css in SCSS form
+
+// colors = [(0,0,255),(0,255,0),(255,0,0),(255,255,0),(255,0,255),(0,255,255)]
+
+
+
+.text-0 {
+  color: rgb(0,0,255) !important;
+}
+
+.text-1 {
+  color: rgb(0,255,0) !important;
+}
+
+.text-2 {
+  color: rgb(255,0,0) !important;
+}
+
+.text-3 {
+  color: rgb(255,255,0) !important;
+}
+
+.text-4 {
+  color: rgb(255,0,255) !important;
+}
+
+.text-5 {
+  color: rgb(0,255,255) !important;
+}
+
+
+
