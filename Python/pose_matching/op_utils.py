@@ -13,6 +13,7 @@ import matplotlib.pyplot as plt
 sys.path.append("/usr/local/python")
 from openpose import pyopenpose as op
 import base64
+from sklearn.preprocessing import normalize
 
 def get_keypoints(image) -> list[pd.DataFrame]:
     # Flags
@@ -59,16 +60,58 @@ def get_keypoints(image) -> list[pd.DataFrame]:
         for human in network_output:
             output_sub_arr = {}
             for i in range(len(human)):
-                output_sub_arr[BODY_PARTS[i]] = [int(human[i][0]), int(human[i][1]), ""]
+                output_sub_arr[BODY_PARTS[i]] = [int(human[i][0]), int(human[i][1])]
             # print("\n   Person Detected")
-            dataframe = pd.DataFrame(output_sub_arr.values(), columns=['x', 'y', 'path'],
-                                     index=list(index_names.values()))
+            # print(output_sub_arr)
+
+            dataframe = pd.DataFrame(output_sub_arr.values(), columns=['x', 'y'], index=list(index_names.values()))
+            # dataframe.attrs['image_path'] = image
             keypoints.append(dataframe)
     # else:
     #     print("no keypoints detected for :" + image)
     #     # return None;
 
     return keypoints
+
+
+from scipy.spatial import procrustes
+
+from skimage.transform import estimate_transform, warp
+from scipy.spatial.distance import euclidean
+
+## This function is used to calculate the similarity percentage between two poses on how good they match, regardless on their position in the picture.
+def similarity_score2(pose1: pd.DataFrame, pose2: pd.DataFrame) -> float:
+    """
+    This function is used to calculate the similarity percentage between two poses on how good they match, regardless on their position in the picture.
+
+    Args:
+    pose1 (pd.DataFrame): dataframe containing the X and Y coordinates of keypoints, and imagepath for the first pose
+    pose2 (pd.DataFrame): dataframe containing the X and Y coordinates of keypoints for the second pose
+
+    Returns:
+    score (float): similarity percentage between the two poses
+    """
+
+    # Extract keypoint coordinates from the dataframes
+    keypoints1 = pose1[['x', 'y']].astype(float).values
+    keypoints2 = pose2[['x', 'y']].astype(float).values
+
+    # Normalize the keypoints to have unit norm
+    norm1 = np.linalg.norm(keypoints1)
+    norm2 = np.linalg.norm(keypoints2)
+    keypoints1 /= norm1
+    keypoints2 /= norm2
+
+    # Compute the Procrustes transformation between the normalized poses
+    mtx1, mtx2, disparity = procrustes(keypoints1, keypoints2)
+
+    # Calculate the similarity score based on the sum of squared differences between corresponding keypoints
+    ssd = np.sum((mtx1 - mtx2) ** 2)
+    max_ssd = np.sum(keypoints1 ** 2) + np.sum(keypoints2 ** 2)
+    similarity = 1 - (ssd / max_ssd)
+
+    return similarity
+
 
 def similarity_score(pose1:pd.DataFrame, pose2:pd.DataFrame):
     p1 = []
@@ -118,9 +161,6 @@ def analyzePose(image):
     poselist = get_keypoints(image)
 
     colors = [(255,0,0),(0,255,0),(0,0,255),(0,255,255),(255,0,255),(255,255,0)]
-
-
-
 
     for i, pose in enumerate(poselist):
         image = drawKeypoints(pose, show_image=True, image=image, color=colors[i])
@@ -267,19 +307,36 @@ def drawKeypoints(pose1:pd.DataFrame, show_image = False, size = 512, image=[], 
 #         similarity_scores.append((score, pose1.iloc[0].path))
 #     return similarity_scores
 
+def get_all_keypoints():
+    #load all keypoints
+    with open('pose_matching/output/keypointsall.pickle', 'rb') as handle:
+        poses = pickle.load(handle)
+    return poses
 
 def find_best_match(pose_list):
     #load all keypoints
-    with open('pose_matching/output/keypointsall.pickle', 'rb') as handle:
-        all_poses = pickle.load(handle)
+    all_poses = get_all_keypoints()
 
     # Calculate every score
     similarity_scores = []
     for pose1 in pose_list:
         score = 0
         for pose2 in all_poses:
-            score += similarity_score(pose1, pose2)
+            score += similarity_score2(pose1, pose2)
             similarity_scores.append((score, pose2.iloc[0].path))
+    #sort on scores descending scores
+    similarity_scores.sort(key=lambda tup: tup[0], reverse=True)
+    return similarity_scores
+
+def find_best_match2(pose):
+    #load all keypoints
+    all_poses = get_all_keypoints()
+
+    # Calculate every score
+    similarity_scores = []
+    for pose2 in all_poses:
+        score = similarity_score2(pose, pose2)
+        similarity_scores.append((score, pose2.iloc[0].path))
     #sort on scores descending scores
     similarity_scores.sort(key=lambda tup: tup[0], reverse=True)
     return similarity_scores
@@ -298,3 +355,10 @@ def get_pose_score(image):
         return 0
     else:
         return find_best_match(df_array)
+
+def get_pose_score2(image):
+    df_array = get_keypoints(image)
+    if not df_array:
+        return 0
+    else:
+        return find_best_match2(df_array[0])

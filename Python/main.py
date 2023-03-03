@@ -23,7 +23,7 @@ def search():
     # read the image file and convert to numpy array
     img_array = np.frombuffer(image.read(), np.uint8)
     img = cv2.imdecode(img_array, cv2.IMREAD_COLOR)
-    pd_scores = op.get_pose_score(img)
+    pd_scores = op.get_pose_score2(img)
     od_scores = od.get_object_score(img)
     image.stream.seek(0)
     image.save("temp/" + image.filename)

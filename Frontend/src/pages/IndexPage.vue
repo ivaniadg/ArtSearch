@@ -79,19 +79,19 @@ export default defineComponent({
     const axes = ref({
       pose: {
         name: "Pose",
-        value: 0.5,
+        value: 1,
       },
       color: {
         name: "Color",
-        value: 0.5,
+        value: 0,
       },
       style: {
         name: "Style",
-        value: 0.5,
+        value: 0,
       },
       objects: {
         name: "Objects",
-        value: 0.5,
+        value: 0,
       },
     });
     return { axes, picture: ref(null), isProcessing: ref(false) };
