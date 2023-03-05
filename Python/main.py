@@ -36,7 +36,7 @@ def search():
     path_list = []
     for i, image in enumerate(os.listdir("/home/mortirreke/Desktop/assets/")):
         if image.endswith(".png") or image.endswith(".jpg") or image.endswith(".jpeg"):
-            path_list.append("/home/mortirreke/Desktop/assets/" + image)
+            path_list.append(image)
 
     results = []
     for path in path_list:
