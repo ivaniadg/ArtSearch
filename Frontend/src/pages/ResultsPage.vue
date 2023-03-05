@@ -1,5 +1,9 @@
 <template>
-  <q-page>
+  <q-page class="row">
+    <div class="col-0">
+        <img id="img" :src="url">
+    </div>
+    <div class="col-12">
     <div class="row q-pa-lg">
       <div class="col-md-10 col-xs-0"><h2 class="q-my-none">results</h2></div>
       <q-select
@@ -68,6 +72,7 @@
         </q-card-section>
       </q-card>
     </q-dialog>
+  </div>
   </q-page>
 </template>
 
@@ -90,6 +95,7 @@ export default defineComponent({
   name: "IndexPage",
   setup() {
     const results = history.state.results;
+    const queryImage = history.state.image[0];
     const selected = ref("Artist");
     const options = ["Artist", "Artstyle", "Date", "Relevance"];
     const dialogImage = ref(null);

@@ -118,6 +118,7 @@ export default defineComponent({
           this.$router.push({
             name: "Results",
             state: {
+              image: this.picture,
               results: response.data
             },
           });
