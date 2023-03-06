@@ -184,10 +184,8 @@ def analyzePose(image):
     for i, pose in enumerate(poses):
         #convert pose (pandas dataframe) to list of dictionaries
         pose = pose.to_dict('index')
-        print(pose)
         persons.append({"name": "Person" + str(i + 1), "bool": True, "keypoints": pose})
 
-    print(persons)
     return {"image": img_base64, "persons": persons}
 
 
@@ -374,9 +372,13 @@ def calculate_matches_improved(query_poses: dict):
         else:
             summed_scores[image_name] = score
 
-    # covert to list
-    similarity_scores = [(v, k) for k, v in summed_scores.items()]
-    return similarity_scores
+    #normalize between 0 and 1
+    max_score = max(summed_scores.values())
+    min_score = min(summed_scores.values())
+    for image_name, score in summed_scores.items():
+        summed_scores[image_name] = (score - min_score) / (max_score - min_score)
+
+    return summed_scores
 
 def get_pose_score(image):
     df_array = get_keypoints(image)
@@ -389,6 +391,6 @@ def get_pose_score(image):
 def get_pose_score2(image):
     poses = get_keypoints(image)
     if not poses:
-        return None
+        return {}
     else:
         return calculate_matches_improved(poses)

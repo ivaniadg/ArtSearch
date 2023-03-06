@@ -152,7 +152,6 @@ def compare_colorpalettes(palette1, palette2):
 def get_color_score(image_path):
     color_thief = ColorThief(image_path)
     palette = color_thief.get_palette(color_count=6)
-
     data = load_data()
     return calculate_matches(palette, data)
 
@@ -181,7 +180,9 @@ def color_palette_similarity(palette1, palette2):
             if distance < min_distance:
                 min_distance = distance
         similarity += min_distance
-    return similarity / len(palette1)
+    #In the RGB color space, the maximum distance between two colors is approximately 441.67 (sqrt(255^2 + 255^2 + 255^2)).
+    max_similarity = 441.67 * len(palette1)
+    return  1 - (similarity / max_similarity)
 
 
 def calculate_matches(colors, data):
@@ -192,8 +193,6 @@ def calculate_matches(colors, data):
         # using the method and update the results dictionary
         d = color_palette_similarity(colors, palette)
         results[k] = d
-    print(results)
-
     return results
 
 

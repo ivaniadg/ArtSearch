@@ -38,23 +38,14 @@ def search():
         if image.endswith(".png") or image.endswith(".jpg") or image.endswith(".jpeg"):
             path_list.append(image)
 
+    path_list = set(path_list)
+
     results = []
     for path in path_list:
-        pose_score = 0
-        object_score = 0
-        color_score = 0
-        if pd_scores == None:
-            pd_scores = []
-        for pd_score in pd_scores:
-            if pd_score[1] == path:
-                pose_score = pd_score[0]
-        for od_score in od_scores:
-            if od_score[1] == path:
-                object_score = od_score[0]
-        for cm_score in cm_scores:
-            if cm_score[1] == path:
-                color_score = cm_score[0]
-
+        pose_score = pd_scores.get(path, 0)
+        object_score = od_scores.get(path, 0)
+        color_score = cm_scores.get(path, 0)
+        print(pose_score, object_score, color_score)
 
         weighted_score = pose_weight * pose_score + object_weight * object_score + color_weight * color_score
         # create dictionary of weighted score, pose score,object score, color score and path

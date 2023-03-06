@@ -201,15 +201,18 @@ def score_image_set(objects_in_image, desired_objects) -> float:
     # Compute the Jaccard similarity
     intersection = len(image_set.intersection(desired_set))
     union = len(image_set.union(desired_set))
+    # check if the union is 0 to avoid division by zero
+    if union == 0:
+        return 0
     score = intersection / union
     return score
 
 
 def calculate_scores(query_objects, all_objects):
-    scores = []
+    scores = {}
     for image_name, image_objects in all_objects.items():
         score = score_image_set(image_objects, query_objects)
-        scores.append((score, image_name))
+        scores[image_name] = score
     return scores
 
 
@@ -257,7 +260,6 @@ def od_get_scores(imagepath) -> list:
 def get_object_score(image) -> list:
     x = load_data()
     objs = get_objects(image)
-    # return find_matchesVec(objs, x, False)
     return calculate_scores(objs, x)
 
 def get_object_scores(objs) -> list:
