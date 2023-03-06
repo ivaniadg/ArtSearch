@@ -1,5 +1,6 @@
 <template>
   <q-page >
+    <q-form @submit="onSubmit">
     <div class="row q-gutter-lg" >
       <div class="col-md-5 col-sm-12 q-gutter-lg">
         <q-card class="image-card">
@@ -25,16 +26,18 @@
       </div>
       </div>
       <div class="col-md-5 col-sm-12 q-gutter-lg">
-        <PoseCard :persons="analyzed_pose.persons" />
-        <ColorCard :colors="analyzed_colors" />
-        <ObjectsCard :objects="analyzed_objects" />
+        <PoseCard :persons="analyzed_pose.persons" :weight="0.1" @update:value="updatePoseValue"/>$
+        <ColorCard :colors="analyzed_colors" @update:value="updateColorValue" />
+        <ObjectsCard :objects="analyzed_objects" @update:value="updateObjectsValue"/>
         <StyleCard/>
       </div>
     </div>
+  </q-form>
   </q-page>
 </template>
 
 <script>
+import axios from "axios";
 import PoseCard from "../components/PoseCard.vue";
 import ColorCard from "../components/ColorCard.vue";
 import StyleCard from "../components/StyleCard.vue";
@@ -43,19 +46,94 @@ import ObjectsCard from "../components/ObjectsCard.vue";
 export default {
   components: { PoseCard, ColorCard, StyleCard, ObjectsCard },
   data() {
+
     const analyzed_pose = history.state.advancedSettings.pose;
     const analyzed_colors = history.state.advancedSettings.colors;
     // const analyzed_style = history.state.advancedSettings.style;
     const analyzed_objects = history.state.advancedSettings.objects;
     const image = analyzed_pose.image
+    const axes = {
+      pose: {
+        value: 0.5,
+      },
+      color: {
+        value: 0.5,
+      },
+      style: {
+        value: 0.5,
+      },
+      objects: {
+        value: 0.5,
+      },
+    };
     return {
       analyzed_pose,
       analyzed_colors,
       // analyzed_style,
       analyzed_objects,
-      image
+      image,
+      axes
     };
   },
+
+  methods: {
+    onSubmit() {
+      console.log("xD")
+      const formData = new FormData();
+      formData.append("image", history.state.image);
+      formData.append("pose_weight", this.axes.pose.value);
+      formData.append("color_weight", this.axes.color.value);
+      formData.append("style_weight", this.axes.style.value);
+      formData.append("object_weight", this.axes.objects.value);
+
+
+      formData.append("poses", JSON.stringify(this.analyzed_pose.persons));
+      console.log(this.analyzed_pose.persons)
+      formData.append("colors", JSON.stringify(this.analyzed_colors));
+      // formData.append("style", JSON.stringify(this.analyzed_style));
+      formData.append("objects", JSON.stringify(this.analyzed_objects));
+
+      this.isProcessing = true;
+      axios
+        .post("http://127.0.0.1:5000/advancedSearchQuery", formData)
+        .then(response => {
+          // handle successful response
+          console.log(response);
+          this.isProcessing = false;
+          //redirect to results page
+          this.$router.push({
+            name: "Results",
+            state: {
+              image: this.picture,
+              results: response.data
+            },
+          });
+        })
+        .catch(error => {
+          // handle error
+          this.isProcessing = false;
+          this.$q.notify({
+            message: "Error: " + error,
+            color: "negative",
+            position: "top",
+            timeout: 2000,
+          });
+          console.log(error);
+        });
+    },
+    updatePoseValue(axis) {
+      this.axes.pose.value = axis.value;
+    },
+    updateColorValue(axis) {
+      this.axes.color.value = axis.value;
+    },
+    updateStyleValue(axis) {
+      this.axes.style.value = axis.value;
+    },
+    updateObjectsValue(axis) {
+      this.axes.objects.value = axis.value;
+    },
+  }
 };
 </script>
 

@@ -12,7 +12,8 @@ from flask_cors import cross_origin
 app = Flask(__name__)
 CORS(app)
 
-@app.route('/search', methods=['GET','POST'])
+
+@app.route('/search', methods=['GET', 'POST'])
 @cross_origin()
 def search():
     pose_weight = float(request.form['pose_weight'])
@@ -27,10 +28,9 @@ def search():
     od_scores = od.get_object_score(img)
     image.stream.seek(0)
     image.save("temp/" + image.filename)
-    cm_scores = cm.get_color_score("temp/" + image.filename) #expects path to image
+    cm_scores = cm.get_color_score("temp/" + image.filename)  # expects path to image
     # remove temp image
     os.remove("temp/" + image.filename)
-
 
     # get all image paths
     path_list = []
@@ -54,15 +54,19 @@ def search():
         for cm_score in cm_scores:
             if cm_score[1] == path:
                 color_score = cm_score[0]
+
+
         weighted_score = pose_weight * pose_score + object_weight * object_score + color_weight * color_score
-        #create dictionary of weighted score, pose score,object score, color score and path
-        result = {"weighted_score": weighted_score, "pose_score": pose_score, "object_score": object_score, "color_score": color_score, "image_name": os.path.basename(path)}
+        # create dictionary of weighted score, pose score,object score, color score and path
+        result = {"weighted_score": weighted_score, "pose_score": pose_score, "object_score": object_score,
+                  "color_score": color_score, "image_name": os.path.basename(path)}
         results.append(result)
         results.sort(key=lambda x: x['weighted_score'], reverse=True)
+        # print(results)
     return jsonify(results)
 
 
-@app.route('/advancedSearch', methods=['GET','POST'])
+@app.route('/advancedSearch', methods=['GET', 'POST'])
 @cross_origin()
 def advancedSearch():
     image = request.files['image']
@@ -80,6 +84,47 @@ def advancedSearch():
 
     result = {"pose": analyse_pose, "objects": analyse_objects, "colors": analyse_colors}
     return jsonify(result)
+
+import json
+import pandas as pd
+@app.route('/advancedSearchQuery', methods=['GET', 'POST'])
+@cross_origin()
+def advancedSearchQuery():
+    image = request.files['image']
+    object_weight = float(request.form['object_weight'])
+    color_weight = float(request.form['color_weight'])
+    pose_weight = float(request.form['pose_weight'])
+
+
+    print("color weight: " + str(color_weight))
+    print("object weight: " + str(object_weight))
+    print("pose weight: " + str(pose_weight))
+
+
+    objects = request.form['objects']
+    poses = request.form['poses']
+    colors = request.form['colors']
+
+    # convert string to json
+    objects = json.loads(objects)
+    poses = json.loads(poses)
+    colors = json.loads(colors)
+
+    # convert the keypoints to pandas dataframe
+    for pose in poses:
+        pose['keypoints'] = pd.DataFrame.from_dict(pose['keypoints'], orient='index')
+
+    pose_scores = pd.calculate_matches_improved(poses)
+    objects_scores = od.get_object_scores(objects)
+    colors_scores = cm.get_color_scores(colors)
+
+
+    #loop over poses and filter out the ones that are not in the query (boolean is false)
+    for pose in poses:
+        if pose['bool'] == False:
+            poses.remove(pose)
+
+    print(poses)
 
 if __name__ == '__main__':
     app.run()

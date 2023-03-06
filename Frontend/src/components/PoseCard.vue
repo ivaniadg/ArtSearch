@@ -34,6 +34,9 @@ export default defineComponent({
       type: Object,
       required: true,
     },
+    weight: {
+      type: Number,
+      required: true}
   },
   name: "PoseCard",
   setup() {
@@ -50,6 +53,7 @@ export default defineComponent({
   },
   methods: {
     updateValue(axis) {
+      this.$emit("update:value", { value: axis.value });
       this.pose.value = axis.value;
     },
   },

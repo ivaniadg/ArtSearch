@@ -42,6 +42,7 @@ export default defineComponent({
   },
   methods: {
     updateValue(axis) {
+      this.$emit("update:value", { value: axis.value });
       this.pose.value = axis.value;
     },
   },

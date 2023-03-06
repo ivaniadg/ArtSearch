@@ -133,29 +133,29 @@ def generate_vector(list):
 
 
 def process_folder(path):
-    list = []
+    list = {}
     for i, image in enumerate(os.listdir(path)):
         # if i == 10:
         #     break
         print(i)
         if image.endswith(".png") or image.endswith(".jpg") or image.endswith(".jpeg"):
             input = cv2.imread(path + image)
-            list.append((get_objects(input), path + image))
+            list[image] = generate_vector(get_objects(input))
     save_data(list)
     return list
 
 
 def save_data(data):
-    with open('object_detection/output/objects3.pickle', 'wb') as handle:
+    with open('object_detection/output/objects4.pickle', 'wb') as handle:
         pickle.dump(data, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 
 def load_data():
-    with open('object_detection/output/objects3.pickle', 'rb') as handle:
+    with open('object_detection/output/objects4.pickle', 'rb') as handle:
         return pickle.load(handle)
 
 
-def get_score(list1,list2):
+def get_score(list1, list2):
     score = 0
     inputcopy = copy.copy(list1)
     for object2 in list2:
@@ -181,11 +181,42 @@ def find_matches(input, data):
     return scores
 
 
-def find_matchesVec(input, data, detect_persons=True):
+def intersection(lst1, lst2):
+    lst3 = [value for value in lst1 if value in lst2]
+    return lst3
+
+
+def score_image_list(objects_in_image, desired_objects) -> float:
+    object_intersection = len(intersection(objects_in_image, desired_objects))
+    object_union = len(objects_in_image) + len(desired_objects)
+    score = object_intersection / object_union
+    return score
+
+
+def score_image_set(objects_in_image, desired_objects) -> float:
+    # Convert the lists to sets
+    image_set = set(objects_in_image)
+    desired_set = set(desired_objects)
+
+    # Compute the Jaccard similarity
+    intersection = len(image_set.intersection(desired_set))
+    union = len(image_set.union(desired_set))
+    score = intersection / union
+    return score
+
+
+def calculate_scores(query_objects, all_objects):
+    scores = []
+    for image_name, image_objects in all_objects.items():
+        score = score_image_set(image_objects, query_objects)
+        scores.append((score, image_name))
+    return scores
+
+
+def find_matchesVec(input, data: dict, detect_persons=True):
     max = 0.001
     scores = []
-    for image in data:
-        objects = image[0]
+    for name, objects in data.items():
         vec1 = generate_vector(objects)
         vec2 = generate_vector(input)
         if not detect_persons:
@@ -196,16 +227,18 @@ def find_matchesVec(input, data, detect_persons=True):
         score = spatial.distance.euclidean(nv1, nv2)
         if score > max:
             max = score
-        scores.append((score,image[1]))
+        scores.append((score, name))
 
     normalized = adjustRange(max, scores)
     sorted_res = sorted(normalized, key=lambda tup: tup[0], reverse=True)
     return sorted_res
 
+
 def adjustRange(max, scores) -> list:
-    for i,score in enumerate(scores):
-        scores[i] = (1-score[0]/max,score[1])
+    for i, score in enumerate(scores):
+        scores[i] = (1 - score[0] / max, score[1])
     return scores
+
 
 def normalize(v):
     norm = np.linalg.norm(v)
@@ -220,11 +253,16 @@ def od_get_scores(imagepath) -> list:
     objs = get_objects(image)
     return find_matchesVec(objs, x, False)
 
+
 def get_object_score(image) -> list:
     x = load_data()
     objs = get_objects(image)
-    return find_matchesVec(objs, x, False)
+    # return find_matchesVec(objs, x, False)
+    return calculate_scores(objs, x)
 
+def get_object_scores(objs) -> list:
+    x = load_data()
+    return calculate_scores(objs, x)
 
 def analyze_objects(image):
     objects = get_objects(image)

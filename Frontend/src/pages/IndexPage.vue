@@ -79,19 +79,19 @@ export default defineComponent({
     const axes = ref({
       pose: {
         name: "Pose",
-        value: 1,
+        value: 0.5,
       },
       color: {
         name: "Color",
-        value: 0,
+        value: 0.5,
       },
       style: {
         name: "Style",
-        value: 0,
+        value: 0.5,
       },
       objects: {
         name: "Objects",
-        value: 0,
+        value: 0.5,
       },
     });
     return { axes, picture: ref(null), isProcessing: ref(false) };
@@ -148,6 +148,7 @@ export default defineComponent({
           this.$router.push({
             name: "AdvancedSettings",
             state: {
+              image: this.picture,
               advancedSettings: response.data
             },
           });

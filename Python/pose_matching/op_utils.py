@@ -162,19 +162,32 @@ def similarity_score(pose1: pd.DataFrame, pose2: pd.DataFrame):
 
 def analyzePose(image):
     poselist = get_keypoints(image)
+    #extract poses from dictionary
+    poses = poselist[""]
 
     colors = [(255, 0, 0), (0, 255, 0), (0, 0, 255), (0, 255, 255), (255, 0, 255), (255, 255, 0)]
 
-    for i, pose in enumerate(poselist[""]):
+    #check if poses is empty
+    if not poses:
+        # enode image as base64 to transfer to frontend
+        _, img_encoded = cv2.imencode('.png', image)
+        img_base64 = base64.b64encode(img_encoded).decode('utf-8')
+        return {"image": img_base64, "persons": []}
+
+    for i, pose in enumerate(poses):
         image = drawKeypoints(pose, show_image=True, image=image, color=colors[i])
     # enode image as base64 to transfer to frontend
     _, img_encoded = cv2.imencode('.png', image)
     img_base64 = base64.b64encode(img_encoded).decode('utf-8')
     # create person strings
     persons = []
-    for i, pose in enumerate(poselist):
-        persons.append({"name": "Person" + str(i + 1), "bool": True})
+    for i, pose in enumerate(poses):
+        #convert pose (pandas dataframe) to list of dictionaries
+        pose = pose.to_dict('index')
+        print(pose)
+        persons.append({"name": "Person" + str(i + 1), "bool": True, "keypoints": pose})
 
+    print(persons)
     return {"image": img_base64, "persons": persons}
 
 
@@ -335,19 +348,18 @@ def calculate_matches(query_poses):
     similarity_scores = [(v, k) for k, v in similarity_scores.items()]
     return similarity_scores
 
-def calculate_matches_improved(query_poses):
+def calculate_matches_improved(query_poses: dict):
+
     images = get_all_keypoints()  # Get keypoints (dictionary) for all poses in all pictures
 
     similarity_scores = []  # Keep track of the similarity scores for each image
 
-    #reverse query poses
-    query_poses = query_poses[::-1]
-
-    for query_pose in query_poses:
+    for query_pose in query_poses[""]:
         for image_name, poses in images.items():
             best_score = float('-inf')
             # Calculate the similarity score between the query pose and each pose in the image
             for pose in poses:
+
                 score = similarity_score2(query_pose, pose)
                 # Keep track of the best score for this image
                 if score > best_score:
@@ -376,8 +388,7 @@ def get_pose_score(image):
 
 def get_pose_score2(image):
     poses = get_keypoints(image)
-    poses = poses['']
     if not poses:
-        return 0
+        return None
     else:
         return calculate_matches_improved(poses)
