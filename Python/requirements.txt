@@ -1,0 +1,17 @@
+tensorboard
+cmake
+onnx
+torch
+torchvision
+numpy
+opencv-python
+
+pandas
+Flask
+matplotlib
+scipy
+scikit-learn
+scikit-image
+colorthief
+colour
+colormath

@@ -163,9 +163,9 @@ def similarity_score(pose1: pd.DataFrame, pose2: pd.DataFrame):
 def analyzePose(image):
     poselist = get_keypoints(image)
     #extract poses from dictionary
-    poses = poselist[""]
+    poses = poselist.get('', [])
 
-    colors = [(255, 0, 0), (0, 255, 0), (0, 0, 255), (0, 255, 255), (255, 0, 255), (255, 255, 0)]
+    colors = [(255, 0, 0), (0, 255, 0), (0, 0, 255), (0, 255, 255), (255, 0, 255), (255, 255, 0), (255, 255, 255), (0, 0, 0)]
 
     #check if poses is empty
     if not poses:
@@ -347,12 +347,15 @@ def calculate_matches(query_poses):
     return similarity_scores
 
 def calculate_matches_improved(query_poses: dict):
+    query_poses = query_poses.get("", [])
+    if not query_poses:
+        return {}
 
     images = get_all_keypoints()  # Get keypoints (dictionary) for all poses in all pictures
 
     similarity_scores = []  # Keep track of the similarity scores for each image
 
-    for query_pose in query_poses[""]:
+    for query_pose in query_poses:
         for image_name, poses in images.items():
             best_score = float('-inf')
             # Calculate the similarity score between the query pose and each pose in the image
@@ -390,6 +393,7 @@ def get_pose_score(image):
 
 def get_pose_score2(image):
     poses = get_keypoints(image)
+    print(poses)
     if not poses:
         return {}
     else:

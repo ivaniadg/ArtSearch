@@ -1,9 +1,12 @@
 <template>
   <q-page class="row">
-    <div class="col-0">
-        <img id="img" :src="url">
+    <div class="col-3">
+      <img id="img" src="" class="q-pa-lg" style="width:100%"/>
+      <div class="flex">
+        <q-btn color="primary" label="New search" :to="{ name: 'Index' }" />
+      </div>
     </div>
-    <div class="col-12">
+    <div class="col-9">
     <div class="row q-pa-lg">
       <div class="col-md-10 col-xs-0"><h2 class="q-my-none">results</h2></div>
       <q-select
@@ -15,7 +18,7 @@
       />
     </div>
 
-    <q-list bordered class="rounded-borders">
+    <!-- <q-list bordered class="rounded-borders">
       <q-expansion-item label="Picasso" default-opened>
         <template v-slot:header>
           <q-item-section>
@@ -25,19 +28,20 @@
           </q-item-section>
         </template>
 
-        <div class="row q-gutter-sm q-ma-sm justify-left">
+
+      </q-expansion-item>
+      <q-separator />
+    </q-list> -->
+    <div class="row q-gutter-sm q-ma-sm justify-left">
           <q-card
             v-for="(result, i) in results"
             :key="i"
             @click="openDialog(result)"
             class="image-card"
           >
-            <img :src="'assets/' + result.image_name" fit style="height: 140px" />
+            <img :src="'https://stthesis.blob.core.windows.net/assets/assets/' + result.image_name" fit style="height: 140px" />
           </q-card>
         </div>
-      </q-expansion-item>
-      <q-separator />
-    </q-list>
     <q-dialog v-model="dialogOpen">
       <q-card style="width: 900px; max-width: 80vw">
         <q-card-section class="row">
@@ -86,6 +90,12 @@
   /* rounded edges */
   border-radius: 10px;
 }
+
+.flex {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 </style>
 
 <script>
@@ -95,7 +105,13 @@ export default defineComponent({
   name: "IndexPage",
   setup() {
     const results = history.state.results;
-    const queryImage = history.state.image[0];
+    // const queryImage = history.state.image;
+    // const reader = new FileReader();
+    // reader.readAsDataURL(queryImage);
+    // reader.onload = function(event) {
+		// 	document.getElementById('img').src = event.target.result;
+		// };
+
     const selected = ref("Artist");
     const options = ["Artist", "Artstyle", "Date", "Relevance"];
     const dialogImage = ref(null);
@@ -109,7 +125,7 @@ export default defineComponent({
   methods: {
     openDialog(result) {
 
-      this.dialogImage = "/assets/"+result.image_name;
+      this.dialogImage = "https://stthesis.blob.core.windows.net/assets/assets/"+result.image_name;
       this.colorMatch = result.color_score;
       this.poseMatch = result.pose_score;
       this.styleMatch = result.style_score;

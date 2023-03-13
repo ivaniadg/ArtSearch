@@ -1,6 +1,14 @@
 <template>
-  <q-page >
-    <q-form @submit="onSubmit">
+  <q-page class="flex flex-center" v-show="isProcessing">
+    <q-spinner
+      class="items-center"
+        color="primary"
+        size="3em"
+
+      />
+  </q-page>
+  <q-page>
+    <q-form @submit="onSubmit"  v-show="!isProcessing">
     <div class="row q-gutter-lg" >
       <div class="col-md-5 col-sm-12 q-gutter-lg">
         <q-card class="image-card">
@@ -26,10 +34,9 @@
       </div>
       </div>
       <div class="col-md-5 col-sm-12 q-gutter-lg">
-        <PoseCard :persons="analyzed_pose.persons" :weight="0.1" @update:value="updatePoseValue"/>$
+        <PoseCard :persons="analyzed_pose.persons" :weight="0.1" @update:value="updatePoseValue"/>
         <ColorCard :colors="analyzed_colors" @update:value="updateColorValue" />
         <ObjectsCard :objects="analyzed_objects" @update:value="updateObjectsValue"/>
-        <StyleCard/>
       </div>
     </div>
   </q-form>
@@ -42,9 +49,10 @@ import PoseCard from "../components/PoseCard.vue";
 import ColorCard from "../components/ColorCard.vue";
 import StyleCard from "../components/StyleCard.vue";
 import ObjectsCard from "../components/ObjectsCard.vue";
+import { ref } from "vue";
 
 export default {
-  components: { PoseCard, ColorCard, StyleCard, ObjectsCard },
+  components: { PoseCard, ColorCard, ObjectsCard },
   data() {
 
     const analyzed_pose = history.state.advancedSettings.pose;
@@ -72,13 +80,13 @@ export default {
       // analyzed_style,
       analyzed_objects,
       image,
-      axes
+      axes,
+      isProcessing: ref(false)
     };
   },
 
   methods: {
     onSubmit() {
-      console.log("xD")
       const formData = new FormData();
       formData.append("image", history.state.image);
       formData.append("pose_weight", this.axes.pose.value);
@@ -98,7 +106,6 @@ export default {
         .post("http://127.0.0.1:5000/advancedSearchQuery", formData)
         .then(response => {
           // handle successful response
-          console.log(response);
           this.isProcessing = false;
           //redirect to results page
           this.$router.push({
