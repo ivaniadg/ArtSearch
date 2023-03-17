@@ -1,6 +1,4 @@
-FROM nvidia/cuda:11.7.0-cudnn8-devel-ubuntu20.04
-
-ENV DEBIAN_FRONTEND noninteractive
+FROM ubuntu:20.04
 
 #install dependencies
 RUN apt-get update && \
@@ -27,14 +25,10 @@ COPY requirements.txt /tmp/
 RUN pip3 install --upgrade pip && pip3 install -r /tmp/requirements.txt
 
 ##################Detectron2 installation##################
-RUN pip install 'git+https://github.com/facebookresearch/fvcore'
-RUN git clone https://github.com/facebookresearch/detectron2 detectron2_repo
-ENV FORCE_CUDA="1"
-ARG TORCH_CUDA_ARCH_LIST="Kepler;Kepler+Tesla;Maxwell;Maxwell+Tegra;Pascal;Volta;Turing"
-ENV TORCH_CUDA_ARCH_LIST="${TORCH_CUDA_ARCH_LIST}"
-RUN pip install --user -e detectron2_repo
-ENV FVCORE_CACHE="/tmp"
-WORKDIR /home/appuser/detectron2_repo
+
+RUN pip3 install torch torchvision --extra-index-url https://download.pytorch.org/whl/cpu
+RUN git clone https://github.com/facebookresearch/detectron2.git && \
+  python3 -m pip install -e detectron2
 
 ##################Openpose installation##################
 #replace cmake as old version has CUDA variable bugs
@@ -46,10 +40,10 @@ ENV PATH="/opt/cmake-3.16.0-Linux-x86_64/bin:${PATH}"
 #get openpose
 WORKDIR /openpose
 RUN git clone https://github.com/CMU-Perceptual-Computing-Lab/openpose.git .
-
+RUN git submodule init && git submodule update
 #build it
 WORKDIR /openpose/build
-RUN cmake -DBUILD_PYTHON=ON -DUSE_CUDNN=OFF .. && make -j `nproc`
+RUN cmake -DBUILD_PYTHON=ON -DGPU_MODE=CPU_ONLY -DUSE_CUDNN=OFF .. && make -j `nproc`
 WORKDIR /openpose
 
 #install openpose python library
@@ -62,10 +56,8 @@ RUN cd /openpose/build/python/openpose && \
     ln -s pyopenpose.cp* pyopenpose && \
     export LD_LIBRARY_PATH=/openpose/build/python/openpose
 
-RUN pip3 install -U flask-cors
-
 # copy local files \
 WORKDIR /app
 COPY . /app
-EXPOSE 5000
-CMD python3 main.py
+EXPOSE 3785
+CMD ["python3", "main.py"]

@@ -1,8 +1,6 @@
 tensorboard
 cmake
 onnx
-torch
-torchvision
 numpy
 opencv-python
 
@@ -15,3 +13,4 @@ scikit-image
 colorthief
 colour
 colormath
+flask-cors
