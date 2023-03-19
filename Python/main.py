@@ -141,10 +141,8 @@ def advancedSearchQuery():
     ############## WEIGHTED SCORES ################
 
     # get all image paths
-    path_list = []
-    for i, image in enumerate(os.listdir("/home/mortirreke/Desktop/assets/")):
-        if image.endswith(".png") or image.endswith(".jpg") or image.endswith(".jpeg"):
-            path_list.append(image)
+    with open('imagelist.pickle', 'rb') as handle:
+        path_list = pickle.load(handle)
 
     path_list = set(path_list)
 
