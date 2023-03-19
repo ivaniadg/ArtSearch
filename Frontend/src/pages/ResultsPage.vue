@@ -1,7 +1,7 @@
 <template>
   <q-page class="row">
     <div class="col-3">
-      <img id="img" src="" class="q-pa-lg" style="width:100%"/>
+      <img :src="queryImage" class="q-pa-lg" style="width:100%"/>
       <div class="flex">
         <q-btn color="primary" label="New search" :to="{ name: 'Index' }" />
       </div>
@@ -17,6 +17,7 @@
         label="Sort by"
       />
     </div>
+
 
     <!-- <q-list bordered class="rounded-borders">
       <q-expansion-item label="Picasso" default-opened>
@@ -105,12 +106,7 @@ export default defineComponent({
   name: "IndexPage",
   setup() {
     const results = history.state.results;
-    // const queryImage = history.state.image;
-    // const reader = new FileReader();
-    // reader.readAsDataURL(queryImage);
-    // reader.onload = function(event) {
-		// 	document.getElementById('img').src = event.target.result;
-		// };
+    const queryImage = localStorage.getItem('queryImage');
 
     const selected = ref("Artist");
     const options = ["Artist", "Artstyle", "Date", "Relevance"];
@@ -120,11 +116,10 @@ export default defineComponent({
     const styleMatch = ref(0.0);
     const objectMatch = ref(0.0);
     const dialogOpen = ref(false);
-    return {options, selected, dialogImage, dialogOpen , results, poseMatch, colorMatch, styleMatch, objectMatch};
+    return {options, selected, dialogImage, dialogOpen , results, poseMatch, colorMatch, styleMatch, objectMatch, queryImage};
   },
   methods: {
     openDialog(result) {
-
       this.dialogImage = "https://stthesis.blob.core.windows.net/assets/assets/"+result.image_name;
       this.colorMatch = result.color_score;
       this.poseMatch = result.pose_score;
