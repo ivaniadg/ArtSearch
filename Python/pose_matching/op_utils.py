@@ -159,6 +159,12 @@ def similarity_score(pose1: pd.DataFrame, pose2: pd.DataFrame):
 
     return 1 - cosineDistance
 
+def draw_poses(image, poses):
+    poses = poses.get('', [])
+    colors = [(255, 0, 0), (0, 255, 0), (0, 0, 255), (0, 255, 255), (255, 0, 255), (255, 255, 0), (255, 255, 255), (0, 0, 0)]
+    for i, pose in enumerate(poses):
+        image = drawKeypoints(pose, show_image=True, image=image, color=colors[i])
+    return image
 
 def analyzePose(image):
     poselist = get_keypoints(image)
@@ -393,8 +399,7 @@ def get_pose_score(image):
 
 def get_pose_score2(image):
     poses = get_keypoints(image)
-    print(poses)
     if not poses:
-        return {}
+        return None, {}
     else:
-        return calculate_matches_improved(poses)
+        return poses, calculate_matches_improved(poses)

@@ -15,12 +15,14 @@ import pickle
 from detectron2 import model_zoo
 from detectron2.engine import DefaultPredictor
 from detectron2.config import get_cfg
+from detectron2.utils.visualizer import Visualizer
+from detectron2.data import MetadataCatalog
 import os
 
 import copy
 
 cfg = get_cfg()
-cfg.MODEL.DEVICE='cpu' #use CPU
+# cfg.MODEL.DEVICE='cpu' #use CPU
 # add project-specific config (e.g., TensorMask) here if you're not running a model in detectron2's core library
 cfg.merge_from_file(model_zoo.get_config_file("COCO-InstanceSegmentation/mask_rcnn_X_101_32x8d_FPN_3x.yaml"))
 cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.7  # set threshold for this model
@@ -113,13 +115,15 @@ def get_label(number):
             80: u'toothbrush'}
     return dict[number + 1]
 
-
 def get_objects(image):
     outputs = predictor(image)
     objects = outputs["instances"].pred_classes.tolist()
+    v = Visualizer(image, MetadataCatalog.get(cfg.DATASETS.TRAIN[0]), scale=1)
+    out = v.draw_instance_predictions(outputs["instances"].to("cpu"))
+    image = out.get_image()
     for o in objects:
         print("object detected: " + get_label(o))
-    return objects
+    return image, objects
 
 
 def generate_vector(list):
@@ -255,10 +259,10 @@ def od_get_scores(imagepath) -> list:
     return find_matchesVec(objs, x, False)
 
 
-def get_object_score(image) -> list:
+def get_object_score(image):
     x = load_data()
-    objs = get_objects(image)
-    return calculate_scores(objs, x)
+    image, objs = get_objects(image)
+    return image, calculate_scores(objs, x)
 
 def get_object_scores(objs) -> list:
     x = load_data()

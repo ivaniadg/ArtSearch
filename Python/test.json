@@ -1,0 +1,46 @@
+{
+  "queryImage": {
+    "colorpalette": [
+        {
+          "r": 0,
+          "g": 0,
+          "b": 0
+        },
+        {
+          "r": 0,
+          "g": 0,
+          "b": 0
+        }
+      ],
+    "result_image": null
+  },
+  "results": [
+    {
+      "detectedObjects": [],
+      "color_score": 1.0,
+      "image_name": "images_594.jpg",
+      "object_score": 1.0,
+      "pose_score": 1.0,
+      "weighted_score": 1.0999999999999999,
+      "colorpalette": [
+        {
+          "r": 0,
+          "g": 0,
+          "b": 0
+        },
+        {
+          "r": 0,
+          "g": 0,
+          "b": 0
+        }
+      ]
+    },
+    {
+      "color_score": 0.9614376504152559,
+      "image_name": "images_2144.jpg",
+      "object_score": 1.0,
+      "pose_score": 0.26102841703757435,
+      "weighted_score": 0.8705960551943235
+    }
+  ]
+}

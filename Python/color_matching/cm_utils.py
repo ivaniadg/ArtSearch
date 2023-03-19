@@ -153,7 +153,7 @@ def get_color_score(image_path):
     color_thief = ColorThief(image_path)
     palette = color_thief.get_palette(color_count=6)
     data = load_data()
-    return calculate_matches(palette, data)
+    return palette, calculate_matches(palette, data)
 
 
 def analyze_colors(image):

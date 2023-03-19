@@ -3,7 +3,6 @@ cmake
 onnx
 numpy
 opencv-python
-
 pandas
 Flask
 matplotlib

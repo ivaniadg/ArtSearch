@@ -1,3 +1,4 @@
+import base64
 import os
 import cv2
 from pose_matching import op_utils as op
@@ -24,14 +25,16 @@ def search():
     # read the image file and convert to numpy array
     img_array = np.frombuffer(image.read(), np.uint8)
     img = cv2.imdecode(img_array, cv2.IMREAD_COLOR)
-    pd_scores = op.get_pose_score2(img)
-    od_scores = od.get_object_score(img)
+    # display the image
+    poses, pd_scores = op.get_pose_score2(img)
+    result_image, od_scores = od.get_object_score(img)
+    result_image = op.draw_poses(result_image, poses)
+
     image.stream.seek(0)
     image.save("temp/" + image.filename)
-    cm_scores = cm.get_color_score("temp/" + image.filename)  # expects path to image
+    palette, cm_scores = cm.get_color_score("temp/" + image.filename)  # expects path to image
     # remove temp image
     os.remove("temp/" + image.filename)
-
 
 
     # get all image paths
@@ -40,7 +43,7 @@ def search():
 
     path_list = set(path_list)
 
-    results = []
+    result = {"result": []}
     for path in path_list:
         pose_score = pd_scores.get(path, 0)
         object_score = od_scores.get(path, 0)
@@ -48,20 +51,32 @@ def search():
 
         weighted_score = pose_weight * pose_score + object_weight * object_score + color_weight * color_score
         # create dictionary of weighted score, pose score,object score, color score and path
-        result = {"weighted_score": weighted_score, "pose_score": pose_score, "object_score": object_score,
+        scores = {"weighted_score": weighted_score, "pose_score": pose_score, "object_score": object_score,
                   "color_score": color_score, "image_name": os.path.basename(path)}
-        results.append(result)
-        results.sort(key=lambda x: x['weighted_score'], reverse=True)
-        # get first 30 results
-        results = results[:60]
-        # print(results)
-    return jsonify(results)
+        result["result"].append(scores)
+
+    # enode image as base64 to transfer to frontend
+    _, img_encoded = cv2.imencode('.png', result_image)
+    result_image = base64.b64encode(img_encoded).decode('utf-8')
+
+    #add query image result to results
+    result["queryImage"] = {"colorpalette": palette,
+    "result_image": result_image}
+
+    result["result"].sort(key=lambda x: x['weighted_score'], reverse=True)
+    # get first 30 results
+    result["result"] = result["result"][:60]
+    # print(results)
+
+
+    return jsonify(result)
 
 
 @app.route('/advancedSearch', methods=['GET', 'POST'])
 @cross_origin()
 def advancedSearch():
     image = request.files['image']
+
     # read the image file and convert to numpy array
     img_array = np.frombuffer(image.read(), np.uint8)
     img = cv2.imdecode(img_array, cv2.IMREAD_COLOR)
@@ -85,6 +100,12 @@ import pandas as pd
 @app.route('/advancedSearchQuery', methods=['GET', 'POST'])
 @cross_origin()
 def advancedSearchQuery():
+    image = request.files['image']
+
+    # read the image file and convert to numpy array
+    img_array = np.frombuffer(image.read(), np.uint8)
+    img = cv2.imdecode(img_array, cv2.IMREAD_COLOR)
+
     object_weight = float(request.form['object_weight'])
     color_weight = float(request.form['color_weight'])
     pose_weight = float(request.form['pose_weight'])
@@ -115,9 +136,9 @@ def advancedSearchQuery():
     for pose in poses:
         if pose['bool']:
             selected_poses.append(pose['keypoints'])
-    print(selected_poses)
 
     pose_scores = op.calculate_matches_improved({"": selected_poses})
+    result_image = op.draw_poses(img, selected_poses)
 
     ############## OBJECT MATCHING ################
 
@@ -128,6 +149,7 @@ def advancedSearchQuery():
             selected_objects.append(object['id'])
 
     object_scores = od.get_object_scores(selected_objects)
+    od.ge
 
     ############## COLOR MATCHING ################
     # filter out the colors that are not in the query (boolean is false)
@@ -146,7 +168,7 @@ def advancedSearchQuery():
 
     path_list = set(path_list)
 
-    results = []
+    result = {}
     for path in path_list:
         pose_score = pose_scores.get(path, 0)
         object_score = object_scores.get(path, 0)
@@ -155,12 +177,12 @@ def advancedSearchQuery():
         weighted_score = pose_weight * pose_score + object_weight * object_score + color_weight * color_score
 
         # create dictionary of weighted score, pose score,object score, color score and path
-        result = {"weighted_score": weighted_score, "pose_score": pose_score, "object_score": object_score,
+        scores = {"weighted_score": weighted_score, "pose_score": pose_score, "object_score": object_score,
                   "color_score": color_score, "image_name": os.path.basename(path)}
 
-        results.append(result)
-        results.sort(key=lambda x: x['weighted_score'], reverse=True)
-    return jsonify(results)
+        result["result"].append(result)
+        result["result"].sort(key=lambda x: x['weighted_score'], reverse=True)
+    return jsonify(result)
 
 
 
