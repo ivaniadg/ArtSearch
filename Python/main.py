@@ -43,7 +43,7 @@ def search():
 
     path_list = set(path_list)
 
-    result = {"result": []}
+    result = {"results": []}
     for path in path_list:
         pose_score = pd_scores.get(path, 0)
         object_score = od_scores.get(path, 0)
@@ -53,7 +53,7 @@ def search():
         # create dictionary of weighted score, pose score,object score, color score and path
         scores = {"weighted_score": weighted_score, "pose_score": pose_score, "object_score": object_score,
                   "color_score": color_score, "image_name": os.path.basename(path)}
-        result["result"].append(scores)
+        result["results"].append(scores)
 
     # enode image as base64 to transfer to frontend
     _, img_encoded = cv2.imencode('.png', result_image)
@@ -63,9 +63,9 @@ def search():
     result["queryImage"] = {"colorpalette": palette,
     "result_image": result_image}
 
-    result["result"].sort(key=lambda x: x['weighted_score'], reverse=True)
+    result["results"].sort(key=lambda x: x['weighted_score'], reverse=True)
     # get first 30 results
-    result["result"] = result["result"][:60]
+    result["results"] = result["results"][:60]
     # print(results)
 
 
@@ -166,7 +166,7 @@ def advancedSearchQuery():
 
     path_list = set(path_list)
 
-    result = {"result": []}
+    result = {"results": []}
     for path in path_list:
         pose_score = pose_scores.get(path, 0)
         object_score = object_scores.get(path, 0)
@@ -178,9 +178,9 @@ def advancedSearchQuery():
         scores = {"weighted_score": weighted_score, "pose_score": pose_score, "object_score": object_score,
                   "color_score": color_score, "image_name": os.path.basename(path)}
 
-        result["result"].append(scores)
+        result["results"].append(scores)
 
-    result["result"].sort(key=lambda x: x['weighted_score'], reverse=True)
+    result["results"].sort(key=lambda x: x['weighted_score'], reverse=True)
 
 
     # enode image as base64 to transfer to frontend

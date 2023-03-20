@@ -157,7 +157,7 @@ export default defineComponent({
       formData.append("image", this.picture);
       axios
         .post(
-          "http://picasso.experiments.cs.kuleuven.be:3785/advancedSearch",
+          "http://localhost:3785/advancedSearch",
           formData
         )
         .then((response) => {

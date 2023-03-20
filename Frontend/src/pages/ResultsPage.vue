@@ -1,9 +1,31 @@
 <template>
   <q-page class="row">
     <div class="col-3">
-      <img :src="queryImage" class="q-pa-lg" style="width:100%"/>
+      <img :src="queryImage" class="q-pa-lg" style="width:100%" @click="enlargeImageDialog"/>
+
       <div class="flex">
-        <q-btn color="primary" label="New search" :to="{ name: 'Index' }" />
+        <q-btn color="primary"   class="q-mb-lg"  label="New search" :to="{ name: 'Index' }" />
+      </div>
+      <q-separator inset />
+
+      <h4 class="q-my-lg text-center">analysis</h4>
+      <div class="q-pa-lg" style="width:100%">
+        <q-img :src="'data:image/png;base64, ' + resultImage" class="clickable"  @click="enlargeImageDialog()">
+        <q-icon class="absolute all-pointer-events" size="50px" name="zoom_in" color="white" style="top: 10px; left: 10px"/>
+      </q-img>
+      </div>
+      <div class="text-subtitle1 text-center">Extracted colors</div>
+      <div class="row q-mx-md">
+      <div
+          class="col-4"
+          style="display: flex; align-items: center"
+          v-for="(color, index) in queryColors"
+          v-bind:key="index"
+        >
+
+          <div class="box q-ma-sm" :style="{ backgroundColor:  'rgb(' + color[0] + ','+ color[1]+ ','+ color[2]+')'}"></div>
+          <div class="text-weight-bold" style="font-size: 10px;">({{color[0]}}, {{color[1]}}, {{color[2]}})</div>
+        </div>
       </div>
     </div>
     <div class="col-9">
@@ -33,7 +55,6 @@
       </q-expansion-item>
       <q-separator />
     </q-list> -->
-    {{ result }}
     <div class="row q-gutter-sm q-ma-sm justify-left">
           <q-card
             v-for="(result, i) in results"
@@ -47,10 +68,14 @@
     <q-dialog v-model="dialogOpen">
       <q-card style="width: 900px; max-width: 80vw">
         <q-card-section class="row">
-          <img
+          <div  class="col-5">
+            <q-img
+            class="dialog-img"
             :src="dialogImage"
-            class="col-5 dialog-img"
+            width="100%"
           />
+          </div>
+
           <div class="col-7 q-pa-md">
             <div class="row">
               <div class="text-h2">Title</div>
@@ -79,10 +104,19 @@
       </q-card>
     </q-dialog>
   </div>
+  <q-dialog v-model="enlargeImage" >
+          <img :src="'data:image/png;base64, ' + resultImage" style="width:70rem"/>
+    </q-dialog>
   </q-page>
 </template>
 
 <style scoped>
+.clickable {
+  cursor: pointer;
+}
+.clickable:hover{
+  opacity: 0.5;
+}
 .image-card:hover {
   /* highlight the hovered item */
   cursor: pointer;
@@ -98,6 +132,14 @@
   justify-content: center;
   align-items: center;
 }
+
+.box {
+  width: 35px;
+  height: 35px;
+  border-radius: 10px;
+  justify-content: center;
+  align-items: center;
+}
 </style>
 
 <script>
@@ -106,10 +148,12 @@ import { defineComponent, ref } from "vue";
 export default defineComponent({
   name: "IndexPage",
   setup() {
-    const results = history.state.results;
     const queryImage = localStorage.getItem('queryImage');
 
-    const results = result.result;
+    const result = history.state.results;
+    const results = result.results;
+    const resultImage = result.queryImage.result_image;
+    const queryColors = result.queryImage.colorpalette
 
     const selected = ref("Artist");
     const options = ["Artist", "Artstyle", "Date", "Relevance"];
@@ -119,7 +163,8 @@ export default defineComponent({
     const styleMatch = ref(0.0);
     const objectMatch = ref(0.0);
     const dialogOpen = ref(false);
-    return {options, selected, dialogImage, dialogOpen , results, poseMatch, colorMatch, styleMatch, objectMatch, queryImage};
+    const enlargeImage = ref(false);
+    return {options, selected, dialogImage, dialogOpen , results, poseMatch, colorMatch, styleMatch, objectMatch, queryImage, resultImage, queryColors, enlargeImage};
   },
   methods: {
     openDialog(result) {
@@ -133,6 +178,12 @@ export default defineComponent({
     closeDialog() {
       this.dialogOpen = false;
     },
+    enlargeImageDialog() {
+      this.enlargeImage = true;
+    },
+    closeImageDialog() {
+      this.enlargeImage = false;
+    }
   },
 });
 </script>
