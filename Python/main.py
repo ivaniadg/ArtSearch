@@ -9,7 +9,7 @@ import pickle
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from flask_cors import cross_origin
-
+import utils
 app = Flask(__name__)
 CORS(app)
 
@@ -52,7 +52,7 @@ def search():
         weighted_score = pose_weight * pose_score + object_weight * object_score + color_weight * color_score
         # create dictionary of weighted score, pose score,object score, color score and path
         scores = {"weighted_score": weighted_score, "pose_score": pose_score, "object_score": object_score,
-                  "color_score": color_score, "image_name": os.path.basename(path)}
+                  "color_score": color_score, "image_name": os.path.basename(path), "metadata" : utils.get_metadata(os.path.basename(path))}
         result["results"].append(scores)
 
     # enode image as base64 to transfer to frontend
@@ -176,7 +176,7 @@ def advancedSearchQuery():
 
         # create dictionary of weighted score, pose score,object score, color score and path
         scores = {"weighted_score": weighted_score, "pose_score": pose_score, "object_score": object_score,
-                  "color_score": color_score, "image_name": os.path.basename(path)}
+                  "color_score": color_score, "image_name": os.path.basename(path), "metadata" : utils.get_metadata(os.path.basename(path))}
 
         result["results"].append(scores)
 

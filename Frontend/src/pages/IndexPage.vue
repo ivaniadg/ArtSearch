@@ -75,10 +75,10 @@ export default defineComponent({
         name: "Color",
         value: 0.5,
       },
-      style: {
-        name: "Style",
-        value: 0.5,
-      },
+      // style: {
+      //   name: "Style",
+      //   value: 0.5,
+      // },
       objects: {
         name: "Objects",
         value: 0.5,
@@ -120,7 +120,7 @@ export default defineComponent({
       formData.append("image", this.picture);
       formData.append("pose_weight", this.axes.pose.value);
       formData.append("color_weight", this.axes.color.value);
-      formData.append("style_weight", this.axes.style.value);
+      // formData.append("style_weight", this.axes.style.value);
       formData.append("object_weight", this.axes.objects.value);
       this.isProcessing = true;
       this.saveToLocalStorage();

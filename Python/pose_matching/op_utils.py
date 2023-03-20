@@ -163,6 +163,9 @@ def draw_poses(image, poses):
     poses = poses.get('', [])
     colors = [(255, 0, 0), (0, 255, 0), (0, 0, 255), (0, 255, 255), (255, 0, 255), (255, 255, 0), (255, 255, 255), (0, 0, 0)]
     for i, pose in enumerate(poses):
+        #if i is greater than the number of colors, reset to 0
+        if i >= len(colors):
+            i = 0
         image = drawKeypoints(pose, show_image=True, image=image, color=colors[i])
     return image
 
