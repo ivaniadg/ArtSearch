@@ -1,10 +1,6 @@
 <template>
   <q-page class="flex flex-center">
-    <q-spinner
-        color="primary"
-        size="3em"
-        v-show="isProcessing"
-      />
+    <q-spinner color="primary" size="3em" v-show="isProcessing" />
     <q-form
       @submit="onSubmit"
       @reset="onReset"
@@ -18,13 +14,12 @@
         label="Click to upload image"
         hint="Image must be in .jpg or .png format"
         accept="image/*"
-      />
-
-      <!-- <q-uploader
-        bordered
-        style="width: 100%; height: 300px"
-        hide-upload-btn=True
-      /> -->
+        @update:model-value="onInput"
+              />
+      <!-- display picture when uploaded -->
+      <div v-if="picture">
+        <q-img :src="queryImage" style="width: 100%" />
+      </div>
 
       <q-list dense>
         <Slider
@@ -41,7 +36,6 @@
           label="Search"
           type="submit"
           color="primary"
-
         /><q-btn
           class="q-mx-lg"
           label="Advanced Options"
@@ -61,21 +55,17 @@
   align-items: center;
   height: 100%;
 }
-
 </style>
 
 <script>
 import { defineComponent, ref } from "vue";
 import Slider from "../components/Slider.vue";
 import axios from "axios";
-import { useQuasar } from "quasar";
 
 export default defineComponent({
   components: { Slider },
   name: "IndexPage",
   setup() {
-    const $q = useQuasar()
-
     const axes = ref({
       pose: {
         name: "Pose",
@@ -94,11 +84,36 @@ export default defineComponent({
         value: 0.5,
       },
     });
-    return { axes, picture: ref(null), isProcessing: ref(false) };
+
+    return { axes, picture: ref(null), isProcessing: ref(false), queryImage: ref(null) };
   },
   methods: {
     updateValue(axis) {
       this.axes[axis.name.toLowerCase()].value = axis.value;
+    },
+    saveToLocalStorage() {
+      const reader = new FileReader();
+      reader.addEventListener(
+        "load",
+        function () {
+          // convert image file to base64 string and save to localStorage
+          localStorage.setItem("queryImage", reader.result);
+        },
+        false
+      );
+      reader.readAsDataURL(this.picture);
+    },
+    onInput() {
+        const reader = new FileReader();
+        reader.addEventListener(
+          "load",
+          function () {
+            // convert image file to base64 string and save to localStorage
+            this.queryImage = reader.result;
+          }.bind(this),
+          false
+      );
+      reader.readAsDataURL(this.picture);
     },
     onSubmit() {
       const formData = new FormData();
@@ -108,6 +123,7 @@ export default defineComponent({
       formData.append("style_weight", this.axes.style.value);
       formData.append("object_weight", this.axes.objects.value);
       this.isProcessing = true;
+      this.saveToLocalStorage();
       axios
         .post("http://localhost:3785/search", formData)
         .then(response => {
@@ -136,11 +152,15 @@ export default defineComponent({
         });
     },
     onAdvancedSettings() {
-    const formData = new FormData();
-    formData.append("image", this.picture);
-    axios
-        .post("http://localhost:3785/advancedSearch", formData)
-        .then(response => {
+      const formData = new FormData();
+      this.isProcessing = true;
+      formData.append("image", this.picture);
+      axios
+        .post(
+          "http://picasso.experiments.cs.kuleuven.be:3785/advancedSearch",
+          formData
+        )
+        .then((response) => {
           // handle successful response
           console.log(response);
           this.isProcessing = false;
@@ -149,11 +169,11 @@ export default defineComponent({
             name: "AdvancedSettings",
             state: {
               image: this.picture,
-              advancedSettings: response.data
+              advancedSettings: response.data,
             },
           });
         })
-        .catch(error => {
+        .catch((error) => {
           // handle error
           this.isProcessing = false;
           this.$q.notify({
@@ -164,7 +184,7 @@ export default defineComponent({
           });
           console.log(error);
         });
-  },
+    },
   },
 });
 </script>
