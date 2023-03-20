@@ -125,7 +125,7 @@ export default defineComponent({
       this.isProcessing = true;
       this.saveToLocalStorage();
       axios
-        .post("http://localhost:3785/search", formData)
+        .post("http://picasso.experiments.cs.kuleuven.be:3785/search", formData)
         .then(response => {
           // handle successful response
           console.log(response);
@@ -157,7 +157,7 @@ export default defineComponent({
       formData.append("image", this.picture);
       axios
         .post(
-          "http://localhost:3785/advancedSearch",
+          "http://picasso.experiments.cs.kuleuven.be:3785/advancedSearch",
           formData
         )
         .then((response) => {

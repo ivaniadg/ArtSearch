@@ -99,14 +99,13 @@ export default {
       formData.append("object_weight", this.axes.objects.value);
 
       formData.append("poses", JSON.stringify(this.analyzed_pose.persons));
-      console.log(this.analyzed_pose.persons);
       formData.append("colors", JSON.stringify(this.analyzed_colors));
       // formData.append("style", JSON.stringify(this.analyzed_style));
       formData.append("objects", JSON.stringify(this.analyzed_objects));
 
       this.isProcessing = true;
       axios
-        .post("http://localhost:3785/advancedSearchQuery", formData)
+        .post("http://picasso.experiments.cs.kuleuven.be:3785/advancedSearchQuery", formData)
         .then((response) => {
           // handle successful response
           this.isProcessing = false;
