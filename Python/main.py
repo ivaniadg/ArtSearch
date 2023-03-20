@@ -110,10 +110,6 @@ def advancedSearchQuery():
     color_weight = float(request.form['color_weight'])
     pose_weight = float(request.form['pose_weight'])
 
-    print("color weight: " + str(color_weight))
-    print("object weight: " + str(object_weight))
-    print("pose weight: " + str(pose_weight))
-
     objects = request.form['objects']
     poses = request.form['poses']
     colors = request.form['colors']
@@ -122,6 +118,17 @@ def advancedSearchQuery():
     objects = json.loads(objects)
     poses = json.loads(poses)
     colors = json.loads(colors)
+
+    ############## OBJECT MATCHING ################
+
+    #filter out the objects that are not in the query (boolean is false)
+    selected_objects = []
+    for object in objects:
+        if object['bool']:
+            selected_objects.append(object['id'])
+
+    object_scores = od.get_object_scores(selected_objects)
+    object_image, _ = od.get_object_score(img)
 
     ############## POSE MATCHING ################
 
@@ -138,18 +145,9 @@ def advancedSearchQuery():
             selected_poses.append(pose['keypoints'])
 
     pose_scores = op.calculate_matches_improved({"": selected_poses})
-    result_image = op.draw_poses(img, selected_poses)
+    result_image = op.draw_poses(object_image, {"": selected_poses})
 
-    ############## OBJECT MATCHING ################
 
-    #filter out the objects that are not in the query (boolean is false)
-    selected_objects = []
-    for object in objects:
-        if object['bool']:
-            selected_objects.append(object['id'])
-
-    object_scores = od.get_object_scores(selected_objects)
-    od.ge
 
     ############## COLOR MATCHING ################
     # filter out the colors that are not in the query (boolean is false)
@@ -168,7 +166,7 @@ def advancedSearchQuery():
 
     path_list = set(path_list)
 
-    result = {}
+    result = {"result": []}
     for path in path_list:
         pose_score = pose_scores.get(path, 0)
         object_score = object_scores.get(path, 0)
@@ -180,8 +178,18 @@ def advancedSearchQuery():
         scores = {"weighted_score": weighted_score, "pose_score": pose_score, "object_score": object_score,
                   "color_score": color_score, "image_name": os.path.basename(path)}
 
-        result["result"].append(result)
-        result["result"].sort(key=lambda x: x['weighted_score'], reverse=True)
+        result["result"].append(scores)
+
+    result["result"].sort(key=lambda x: x['weighted_score'], reverse=True)
+
+
+    # enode image as base64 to transfer to frontend
+    _, img_encoded = cv2.imencode('.png', result_image)
+    result_image = base64.b64encode(img_encoded).decode('utf-8')
+
+    result["queryImage"] = {"colorpalette": selected_colors,
+                            "result_image": result_image}
+
     return jsonify(result)
 
 

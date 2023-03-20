@@ -269,8 +269,9 @@ def get_object_scores(objs) -> list:
     return calculate_scores(objs, x)
 
 def analyze_objects(image):
-    objects = get_objects(image)
+    _,objects = get_objects(image)
     results = []
     for o in objects:
+        print(o)
         results.append({"label": get_label(o), "id": o, "bool": True})
     return results

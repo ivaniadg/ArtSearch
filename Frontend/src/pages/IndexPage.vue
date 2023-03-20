@@ -109,7 +109,7 @@ export default defineComponent({
       formData.append("object_weight", this.axes.objects.value);
       this.isProcessing = true;
       axios
-        .post("http://picasso.experiments.cs.kuleuven.be:3785/search", formData)
+        .post("http://localhost:3785/search", formData)
         .then(response => {
           // handle successful response
           console.log(response);
@@ -139,7 +139,7 @@ export default defineComponent({
     const formData = new FormData();
     formData.append("image", this.picture);
     axios
-        .post("http://picasso.experiments.cs.kuleuven.be:3785/advancedSearch", formData)
+        .post("http://localhost:3785/advancedSearch", formData)
         .then(response => {
           // handle successful response
           console.log(response);

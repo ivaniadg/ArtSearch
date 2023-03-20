@@ -32,6 +32,7 @@
       </q-expansion-item>
       <q-separator />
     </q-list> -->
+    {{ result }}
     <div class="row q-gutter-sm q-ma-sm justify-left">
           <q-card
             v-for="(result, i) in results"
@@ -104,13 +105,15 @@ import { defineComponent, ref } from "vue";
 export default defineComponent({
   name: "IndexPage",
   setup() {
-    const results = history.state.results;
+    const result = history.state.results;
     // const queryImage = history.state.image;
     // const reader = new FileReader();
     // reader.readAsDataURL(queryImage);
     // reader.onload = function(event) {
 		// 	document.getElementById('img').src = event.target.result;
 		// };
+
+    const results = result.result;
 
     const selected = ref("Artist");
     const options = ["Artist", "Artstyle", "Date", "Relevance"];
@@ -120,7 +123,7 @@ export default defineComponent({
     const styleMatch = ref(0.0);
     const objectMatch = ref(0.0);
     const dialogOpen = ref(false);
-    return {options, selected, dialogImage, dialogOpen , results, poseMatch, colorMatch, styleMatch, objectMatch};
+    return {options, selected, dialogImage, dialogOpen , results, poseMatch, colorMatch, styleMatch, objectMatch, result};
   },
   methods: {
     openDialog(result) {
