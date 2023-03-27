@@ -153,7 +153,7 @@ def get_color_score(image_path):
     color_thief = ColorThief(image_path)
     palette = color_thief.get_palette(color_count=6)
     data = load_data()
-    return palette, calculate_matches(palette, data)
+    return palette, calculate_matches2(palette, data)
 
 
 def analyze_colors(image):
@@ -185,7 +185,25 @@ def color_palette_similarity(palette1, palette2):
     return  1 - (similarity / max_similarity)
 
 
-def calculate_matches(colors, data):
+def calculate_matches2(colors, data) -> dict:
+    distances = {}
+    for (k,palette) in data.items():
+        distance = 0
+        for i in range(len(colors)):
+            distance += euclidean_distance(colors[i], palette[i])
+        distances[k] = distance
+    # sort the results dictionary reverse
+    sorted_indices = sorted([(v, k) for (k, v) in distances.items()])
+    #normalize the distances
+    max_distance = sorted_indices[-1][0]
+    sorted_indices = [(v / max_distance, k) for (v, k) in sorted_indices]
+
+    # set matching percentage
+    sorted_indices = [(1 - v, k) for (v, k) in sorted_indices]
+    # return the sorted results as dictionary
+    return {k: v for (v, k) in sorted_indices}
+
+def calculate_matches(colors, data) -> dict:
     results = {}
     # loop over the index
     for (k, palette) in data.items():

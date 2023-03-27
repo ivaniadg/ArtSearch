@@ -384,7 +384,7 @@ def calculate_matches_improved(query_poses: dict):
         else:
             summed_scores[image_name] = score
 
-    #normalize between 0 and 1
+    # normalize between 0 and 1
     max_score = max(summed_scores.values())
     min_score = min(summed_scores.values())
     for image_name, score in summed_scores.items():

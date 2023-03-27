@@ -58,13 +58,13 @@
     <div class="col-9">
       <div class="row q-pa-lg">
         <div class="col-md-10 col-xs-0"><h2 class="q-my-none">results</h2></div>
-        <q-select
+        <!-- <q-select
           class="col-md-2 col-xs-12"
           outlined
           v-model="selected"
           :options="options"
           label="Sort by"
-        />
+        /> -->
       </div>
 
       <!-- <q-list bordered class="rounded-borders">

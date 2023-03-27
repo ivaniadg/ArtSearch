@@ -105,7 +105,7 @@ export default {
 
       this.isProcessing = true;
       axios
-        .post("http://picasso.experiments.cs.kuleuven.be:3785/advancedSearchQuery", formData)
+        .post("http://localhost:3785/advancedSearchQuery", formData)
         .then((response) => {
           // handle successful response
           this.isProcessing = false;
