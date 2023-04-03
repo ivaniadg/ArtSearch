@@ -4,7 +4,9 @@
       <div class="text-h6 text-center">Color</div>
     </q-card-section>
     <q-card-section class="q-pt-none">
-      <Slider :axis="pose" @update:value="updateValue"></Slider>
+      <Slider :axis="pose" @update:value="updateValue"
+      @change="value=>userLogger.addAction({'name': 'Change weight', 'Axis': 'Color', 'Value':value })"
+      ></Slider>
       <div class="row">
         <div
           class="col-4"
@@ -12,7 +14,7 @@
           v-for="(color, index) in colors"
           v-bind:key="index"
         >
-          <q-checkbox v-model="color.bool" />
+          <q-checkbox v-model="color.bool"  @update:model-value="userLogger.addAction({'name': 'Changed color','color': color.color.toString(), 'value' : color.bool})" />
           <div class="box" :style="{ backgroundColor:  'rgb(' + color.color[0] + ','+ color.color[1]+ ','+ color.color[2]+')'}"></div>
         </div>
         <!-- <q-btn dense color="primary" icon="add" size="md"/> -->
@@ -39,6 +41,9 @@ export default defineComponent({
   components: { Slider },
   props: {
     colors: {
+      required: true,
+    },
+    userLogger: {
       required: true,
     },
   },

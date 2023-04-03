@@ -1,0 +1,47 @@
+from flask import Flask, make_response, request
+from flask_sqlalchemy import SQLAlchemy
+from celery import Celery
+from flask_cors import CORS
+
+# APP
+app = Flask(__name__)
+app.config.from_object("config")
+app.secret_key = app.config['SECRET_KEY']
+
+# DB
+db = SQLAlchemy(app)
+
+# Task Broker
+task_broker = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
+task_broker.conf.update(app.config)
+CORS(app)
+
+from models import ActionRAW, PositionScreen
+
+
+@app.route("/analytics", methods=["POST"])
+def save_analytics():
+    data = request.get_json()
+    process_actions.apply_async(args=(data, ))
+    return make_response('Received', 200)
+
+
+@task_broker.task(bind=True, name='process_actions')
+def process_actions(self, data):
+    interest = []
+    for action in data:
+        # First: save the raw json.
+        raw = ActionRAW(data=action)
+        db.session.add(raw)
+        db.session.commit()
+        # Second: save the transformed action for analysis
+        # position = PositionScreen(raw_action=raw.id,
+                            # user=action['user'],
+                            # condition=action['condition'],
+                            # page=action['page'],
+                            # name=action['name'],
+                            # timestamp=action['timestamp'])
+        # interest.append(position)
+
+    db.session.add_all(interest)
+    db.session.commit()

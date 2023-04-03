@@ -27,6 +27,7 @@
           :key="index"
           :axis="axis"
           @update:value="updateValue"
+          @change="value=>userLogger.addAction({'name': 'Change weight', 'Axis': axis.name, 'Value': value })"
         ></Slider>
       </q-list>
       <div class="center-button">
@@ -61,11 +62,17 @@
 import { defineComponent, ref } from "vue";
 import Slider from "../components/Slider.vue";
 import axios from "axios";
+import UserLogger from "../UserLogger";
 
 export default defineComponent({
   components: { Slider },
   name: "IndexPage",
   setup() {
+    const analytics_server = process.env.ANALYTICS_SERVER;
+    var userLogger = new UserLogger(analytics_server,
+        10, 20, 'data', {'user': 'expert',
+            'page': 'index',
+            'condition': 'sliders+advancedoptions'})
     const axes = ref({
       pose: {
         name: "Pose",
@@ -75,17 +82,13 @@ export default defineComponent({
         name: "Color",
         value: 0.5,
       },
-      // style: {
-      //   name: "Style",
-      //   value: 0.5,
-      // },
       objects: {
         name: "Objects",
         value: 0.5,
       },
     });
 
-    return { axes, picture: ref(null), isProcessing: ref(false), queryImage: ref(null) };
+    return { axes, picture: ref(null), isProcessing: ref(false), queryImage: ref(null), userLogger };
   },
   methods: {
     updateValue(axis) {
@@ -114,6 +117,8 @@ export default defineComponent({
           false
       );
       reader.readAsDataURL(this.picture);
+      // log image upload
+      this.userLogger.addAction({'name': 'Upload image', 'Image': this.picture.name})
     },
     onSubmit() {
       const formData = new FormData();
@@ -124,12 +129,15 @@ export default defineComponent({
       formData.append("object_weight", this.axes.objects.value);
       this.isProcessing = true;
       this.saveToLocalStorage();
+      // log submission
+      this.userLogger.addAction({'name': 'Submit search', 'Pose weight': this.axes.pose.value, 'Color weight': this.axes.color.value, 'Object weight': this.axes.objects.value})
       axios
         // .post("http://picasso.experiments.cs.kuleuven.be:3785/search", formData)
-        .post("http://localhost:3785/search", formData)
+        .post("http://localhost:5001/search", formData)
         .then(response => {
           // handle successful response
-          console.log(response);
+          // log success
+          this.userLogger.addAction({'name': 'Search success'})
           this.isProcessing = false;
           //redirect to results page
           this.$router.push({
@@ -149,17 +157,20 @@ export default defineComponent({
             position: "top",
             timeout: 2000,
           });
-          console.log(error);
+          // log error
+          this.userLogger.addAction({'name': 'Search error', 'Error': error})
         });
     },
     onAdvancedSettings() {
       const formData = new FormData();
       this.isProcessing = true;
+      // log advanced settings
+      this.userLogger.addAction({'name': 'Advanced settings'})
       formData.append("image", this.picture);
       axios
         .post(
           // "http://picasso.experiments.cs.kuleuven.be:3785/advancedSearch",
-          "http://localhost:3785/advancedSearch",
+          "http://localhost:5001/advancedSearch",
           formData
         )
         .then((response) => {

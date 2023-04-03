@@ -14,6 +14,7 @@
           class="q-mb-lg"
           label="New search"
           :to="{ name: 'Index' }"
+          @click="userLogger.addAction({ name: 'New search' })"
         />
       </div>
       <q-separator inset />
@@ -98,7 +99,7 @@
           />
         </q-card>
       </div>
-      <q-dialog v-model="dialogOpen">
+      <q-dialog v-model="dialogOpen" @hide="this.userLogger.addAction({'name': 'CloseDialog', 'image': this.title})">
         <q-card style="width: 1200px; max-width: 110vw">
           <q-card-section class="row">
             <div class="col-6">
@@ -214,10 +215,19 @@
 
 <script>
 import { defineComponent, ref } from "vue";
+import  UserLogger  from "../UserLogger";
 
 export default defineComponent({
   name: "IndexPage",
   setup() {
+
+    const analytics_server = process.env.ANALYTICS_SERVER;
+
+    var userLogger = new UserLogger( analytics_server ,
+        10, 20, 'data', {'user': 'expert',
+            'page': 'AdvancedSettings',
+            'condition': 'sliders+advancedoptions'});
+
     const queryImage = localStorage.getItem("queryImage");
 
     const result = history.state.results;
@@ -254,10 +264,12 @@ export default defineComponent({
       showAnalysis,
       title,
       artist,
+      userLogger
     };
   },
   methods: {
     openDialog(result) {
+      this.userLogger.addAction({'name': 'openDialog', 'image': result.metadata.title})
       this.dialogImage =
         "https://stthesis.blob.core.windows.net/assets/assets/" +
         result.image_name;
@@ -277,15 +289,19 @@ export default defineComponent({
       this.dialogOpen = false;
     },
     enlargeImageDialog() {
+      this.userLogger.addAction({'name': 'enlargeAnalysisImage'})
       this.enlargeImage = true;
     },
     closeImageDialog() {
+      this.userLogger.addAction({'name': 'closeAnalysisImage', 'image': this.title})
       this.enlargeImage = false;
     },
     showDetails() {
+      this.userLogger.addAction({'name': 'switchToDetails', 'image': this.title})
       this.showAnalysis = true;
     },
     showNormal() {
+      this.userLogger.addAction({'name': 'switchToNormal', 'image': this.title})
       this.showAnalysis = false;
     },
   },

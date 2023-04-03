@@ -6,7 +6,7 @@
         <q-icon name="priority_high" size="xs" />
       </q-item-section>
       <q-item-section>
-        <q-slider v-model="val" :step="0" :min="0" :max="1" :markers="0.5" label :label-value="'Value: ' + roundedValue"  track-size="6px" thumb-color="grey"/>
+        <q-slider @change="value => $emit('change', value)" v-model="val" :step="0" :min="0" :max="1" :markers="0.5" label :label-value="'Value: ' + roundedValue"  track-size="6px" thumb-color="grey"/>
       </q-item-section>
       <q-item-section side>
         <q-icon name="priority_high" size="lg" />

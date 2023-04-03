@@ -62,7 +62,7 @@ COPY . /app
 
 RUN cp -r /openpose/models/ /app/pose_matching/
 
-RUN mkdir /app/temp
+RUN mkdir -p /app/temp
 
 EXPOSE 3785
 CMD ["python3", "main.py"]

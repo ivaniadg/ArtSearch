@@ -1,0 +1,1 @@
+"CREATE TABLE actions (id SERIAL PRIMARY KEY, data JSONB NOT NULL);"

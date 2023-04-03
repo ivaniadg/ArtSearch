@@ -5,7 +5,7 @@
       <space />
     </q-card-section>
     <q-card-section class="q-pt-none">
-      <Slider :axis="pose" @update:value="updateValue"></Slider>
+      <Slider :axis="pose" @update:value="updateValue" @change="value=>userLogger.addAction({'name': 'Change weight', 'Axis': 'Object', 'Value':value })"></Slider>
       <div class="row">
         <q-checkbox
           class="col-4"
@@ -13,6 +13,7 @@
           :key="index"
           :label="object.label"
           v-model="object.bool"
+          @update:model-value="userLogger.addAction({'name': 'Changed object','object':object.label, 'value' : object.bool})"
         />
       </div>
     </q-card-section>
@@ -28,6 +29,9 @@ export default defineComponent({
   name: "ObjectsCard",
   props: {
     objects: {
+      required: true,
+    },
+    userLogger: {
       required: true,
     },
   },

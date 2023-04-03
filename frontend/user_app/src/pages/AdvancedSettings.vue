@@ -24,6 +24,7 @@
               label="Back"
               size="sm"
               color="secondary"
+              @click="this.userLogger.addAction({'name': 'Back to index page'})"
               :to="{ name: 'Index' }"
             />
           </div>
@@ -31,15 +32,18 @@
         <div class="col-md-5 col-sm-12 q-gutter-lg">
           <PoseCard
             :persons="analyzed_pose.persons"
+            :userLogger="userLogger"
             :weight="0.1"
             @update:value="updatePoseValue"
           />
           <ColorCard
             :colors="analyzed_colors"
+            :userLogger="userLogger"
             @update:value="updateColorValue"
           />
           <ObjectsCard
             :objects="analyzed_objects"
+            :userLogger="userLogger"
             @update:value="updateObjectsValue"
           />
         </div>
@@ -55,10 +59,17 @@ import ColorCard from "../components/ColorCard.vue";
 import StyleCard from "../components/StyleCard.vue";
 import ObjectsCard from "../components/ObjectsCard.vue";
 import { ref } from "vue";
+import UserLogger from "../UserLogger";
 
 export default {
   components: { PoseCard, ColorCard, ObjectsCard },
   data() {
+    const analytics_server = process.env.ANALYTICS_SERVER;
+    var userLogger = new UserLogger(analytics_server,
+        10, 20, 'data', {'user': 'expert',
+            'page': 'AdvancedSettings',
+            'condition': 'sliders+advancedoptions'})
+
     const analyzed_pose = history.state.advancedSettings.pose;
     const analyzed_colors = history.state.advancedSettings.colors;
     // const analyzed_style = history.state.advancedSettings.style;
@@ -86,6 +97,7 @@ export default {
       image,
       axes,
       isProcessing: ref(false),
+      userLogger,
     };
   },
 
@@ -103,9 +115,14 @@ export default {
       // formData.append("style", JSON.stringify(this.analyzed_style));
       formData.append("objects", JSON.stringify(this.analyzed_objects));
 
+      this.userLogger.addAction({'name': 'search',
+          'pose_weight': this.axes.pose.value,
+          'color_weight': this.axes.color.value,
+          'style_weight': this.axes.style.value,
+          'object_weight': this.axes.objects.value})
       this.isProcessing = true;
       axios
-        .post("http://localhost:3785/advancedSearchQuery", formData)
+        .post("http://localhost:5001/advancedSearchQuery", formData)
         .then((response) => {
           // handle successful response
           this.isProcessing = false;
@@ -127,7 +144,6 @@ export default {
             position: "top",
             timeout: 2000,
           });
-          console.log(error);
         });
     },
     updatePoseValue(axis) {

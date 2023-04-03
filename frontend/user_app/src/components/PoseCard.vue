@@ -8,10 +8,11 @@
       <Slider
           :axis="pose"
           @update:value="updateValue"
-        ></Slider>
+          @change="value=>userLogger.addAction({'name': 'Change weight', 'Axis': 'Pose', 'Value':value })"
+        />
         <div class="row">
-          <q-checkbox class="col-4" v-for="(person, index) in persons" :key="index" :label="person.name" v-model="person.bool" keep-color :color="index" />
-
+          <q-checkbox class="col-4" v-for="(person, index) in persons" :key="index" :label="person.name" v-model="person.bool" keep-color
+           :color="index" @update:model-value="userLogger.addAction({'name': 'Changed pose','person':person.name, 'value' : person.bool})"  />
         </div>
     </q-card-section>
   </q-card>
@@ -36,7 +37,11 @@ export default defineComponent({
     },
     weight: {
       type: Number,
-      required: true}
+      required: true},
+    userLogger: {
+      type: Object,
+      required: true
+    }
   },
   name: "PoseCard",
   setup() {
