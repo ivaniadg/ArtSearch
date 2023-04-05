@@ -121,8 +121,9 @@ export default {
           'style_weight': this.axes.style.value,
           'object_weight': this.axes.objects.value})
       this.isProcessing = true;
+      const backend_server = process.env.BACKEND_SERVER;
       axios
-        .post("http://localhost:5001/advancedSearchQuery", formData)
+        .post(backend_server+"/advancedSearchQuery", formData)
         .then((response) => {
           // handle successful response
           this.isProcessing = false;

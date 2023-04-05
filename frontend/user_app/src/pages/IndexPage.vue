@@ -129,11 +129,11 @@ export default defineComponent({
       formData.append("object_weight", this.axes.objects.value);
       this.isProcessing = true;
       this.saveToLocalStorage();
+      const backend_server = process.env.BACKEND_SERVER;
       // log submission
       this.userLogger.addAction({'name': 'Submit search', 'Pose weight': this.axes.pose.value, 'Color weight': this.axes.color.value, 'Object weight': this.axes.objects.value})
       axios
-        // .post("http://picasso.experiments.cs.kuleuven.be:3785/search", formData)
-        .post("http://localhost:5001/search", formData)
+        .post(backend_server+'/search', formData)
         .then(response => {
           // handle successful response
           // log success
@@ -167,10 +167,10 @@ export default defineComponent({
       // log advanced settings
       this.userLogger.addAction({'name': 'Advanced settings'})
       formData.append("image", this.picture);
+      const backend_server = process.env.BACKEND_SERVER;
       axios
         .post(
-          // "http://picasso.experiments.cs.kuleuven.be:3785/advancedSearch",
-          "http://localhost:5001/advancedSearch",
+          backend_server+"/advancedSearch",
           formData
         )
         .then((response) => {

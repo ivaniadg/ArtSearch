@@ -1,0 +1,55 @@
+version: "3.9"
+services:
+  user_app:
+    image: user_app:lastest
+    build:
+      context: ./frontend/user_app
+      dockerfile: Dockerfile
+    links:
+      - analytics_app
+    environment:
+      - ANALYTICS_SERVER=http://localhost:3787/analytics
+    ports:
+      - "3786:80"
+  analytics_app:
+    image: analytics_app:lastest
+    build:
+      context: ./frontend/analytics_app
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+     - "5003:5000"
+    links:
+      - redis
+    depends_on:
+      - redis
+  celery:
+    image: celery
+    build:
+      context: ./frontend/analytics_app
+      dockerfile: Dockerfile_celery
+    links:
+      - redis
+    depends_on:
+      - analytics_app
+      - redis
+  redis:
+      image: "redis:alpine"
+      ports:
+        - "6379:6379"
+  db:
+    image: db:latest
+    build: 
+      context: ./frontend/analytics_app
+      dockerfile: Dockerfile_db
+    env_file:
+      - ./frontend/analytics_app/postgres.env
+    ports:
+      - '5433:5432'
+  backend:
+    image: backend:lastest
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "3785:3785"

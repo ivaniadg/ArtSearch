@@ -6,3 +6,4 @@ psycopg2
 sqlalchemy
 flask_sqlalchemy
 redis
+scipy
