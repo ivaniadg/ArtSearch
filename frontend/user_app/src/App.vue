@@ -1,4 +1,6 @@
 <template>
+     User ID: {{userID}}
+
   <router-view />
 </template>
 
@@ -6,6 +8,10 @@
 import { defineComponent } from 'vue'
 
 export default defineComponent({
-  name: 'App'
+  name: 'App',
+  setup(){
+    const userID = localStorage.getItem("userID");
+    return {userID}
+  }
 })
 </script>

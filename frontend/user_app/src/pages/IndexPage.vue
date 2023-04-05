@@ -68,9 +68,15 @@ export default defineComponent({
   components: { Slider },
   name: "IndexPage",
   setup() {
+    if (!localStorage.getItem("userID")){
+        localStorage.setItem("userID", Math.random().toString(16).slice(2));
+        console.log("user id does not exist, creating new one" + localStorage.getItem("userID"))
+    }
+
+    const userID = localStorage.getItem("userID");
     const analytics_server = process.env.ANALYTICS_SERVER;
     var userLogger = new UserLogger(analytics_server,
-        10, 20, 'data', {'user': 'expert',
+        10, 20, 'data', {'userID': userID,
             'page': 'index',
             'condition': 'sliders+advancedoptions'})
     const axes = ref({

@@ -65,8 +65,9 @@ export default {
   components: { PoseCard, ColorCard, ObjectsCard },
   data() {
     const analytics_server = process.env.ANALYTICS_SERVER;
+    const userID = localStorage.getItem("userID");
     var userLogger = new UserLogger(analytics_server,
-        10, 20, 'data', {'user': 'expert',
+        10, 20, 'data', {'userID': userID,
             'page': 'AdvancedSettings',
             'condition': 'sliders+advancedoptions'})
 
