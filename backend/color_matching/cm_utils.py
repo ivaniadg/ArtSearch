@@ -224,3 +224,13 @@ def get_precalc_scores(image_name):
     x = load_data()
     colors = x[image_name]
     return colors,calculate_matches(colors, x)
+
+
+def precalc_analyze_colors(image_name):
+    x = load_data()
+    palette = x[image_name]
+    # add booleans to palette
+    results = []
+    for color in palette:
+        results.append({"color": color, "bool": True})
+    return results

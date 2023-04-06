@@ -284,3 +284,12 @@ def get_precalc_scores(image_name):
     objs = x[image_name]
     # image, objs = get_objects(image)
     return calculate_scores(objs, x)
+
+
+def precalc_analyze_objects(image_name):
+    x = load_data()
+    objs = x[image_name]
+    results = []
+    for o in objs:
+        results.append({"label": get_label(o), "id": o, "bool": True})
+    return results

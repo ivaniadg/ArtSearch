@@ -198,6 +198,26 @@ def analyzePose(image):
     return {"image": img_base64, "persons": persons}
 
 
+def precalc_analyzePose(image_name):
+    poses = get_all_keypoints()
+    poses = poses.get(image_name, [])
+
+    #load image from precalculated_images
+    image = cv2.imread("precalculated_images/" + image_name)
+
+    # enode image as base64 to transfer to frontend
+    _, img_encoded = cv2.imencode('.png', image)
+    img_base64 = base64.b64encode(img_encoded).decode('utf-8')
+    # create person strings
+    persons = []
+    for i, pose in enumerate(poses):
+        #convert pose (pandas dataframe) to list of dictionaries
+        pose = pose.to_dict('index')
+        persons.append({"name": "Person" + str(i + 1), "bool": True, "keypoints": pose})
+
+    return {"image": img_base64, "persons": persons}
+
+
 def drawKeypoints(pose1: pd.DataFrame, show_image=False, size=512, image=[], color=(0, 0, 255)):
     if show_image:
         canvas = image
