@@ -139,22 +139,36 @@
                 <q-btn icon="close" flat round v-close-popup />
               </div>
               <div class="row q-pa-xs text-h5">By {{ artist }}</div>
-              <div class="column justify-center" style="height: 60%" v-show="stage==1">
+              <div class="row" style="height: 60%" v-show="stage==1">
                 <div class="text-overline">Pose</div>
                 <q-linear-progress :value="poseMatch" class="q-my-xs" />
 
                 <div class="text-overline">Color</div>
                 <q-linear-progress :value="colorMatch" class="q-my-xs" />
 
-                <!-- <div class="text-overline">Style</div>
-                <q-linear-progress :value="styleMatch" class="q-my-xs" /> -->
-
                 <div class="text-overline">Objects</div>
                 <q-linear-progress :value="objectMatch" class="q-my-xs" />
+
+                <div class="row q-py-lg">
+                  <div
+                    class="col-4"
+                    style="display: flex; align-items: center"
+                    v-for="(color, index) in selectedPalette"
+                    v-bind:key="index"
+                  >
+                    <div
+                      class="box q-ma-sm"
+                      :style="{
+                        backgroundColor:
+                          'rgb(' + color[0] + ',' + color[1] + ',' + color[2] + ')',
+                      }"
+                    ></div>
+                    <div class="text-weight-bold" style="font-size: 10px">
+                      ({{ color[0] }}, {{ color[1] }}, {{ color[2] }})
+                    </div>
+                  </div>
+                </div>
               </div>
-              <!-- <div class="row justify-center">
-                <q-btn color="primary" label="search this image" />
-              </div> -->
             </div>
           </q-card-section>
         </q-card>
@@ -269,7 +283,9 @@ export default defineComponent({
             'page': 'AdvancedSettings',
             'condition': 'sliders+advancedoptions'});
 
+    const isPrecalulated = localStorage.getItem("precalculated")
     const queryImage = localStorage.getItem("queryImage");
+
 
     const result = history.state.results;
     const results = ref(result.results);
@@ -288,7 +304,7 @@ export default defineComponent({
     const showAnalysis = ref(false);
     const title = ref("Title");
     const artist = ref("Artist");
-    const stage = ref(0); // 0: before selecting top 10, 1: after selecting top 10
+    const stage = ref(1); // 0: before selecting top 10, 1: after selecting top 10
     const s0_top10 = ref([]);
     const s1_top10 = ref([]);
     const counter = ref(1);
@@ -297,6 +313,7 @@ export default defineComponent({
     const sent_top10 = ref(false);
     const infoStage0 = ref(true);
     const infoStage1 = ref(false);
+    const selectedPalette = ref([]);
     return {
       options,
       selected,
@@ -325,7 +342,8 @@ export default defineComponent({
       userID,
       analytics_server,
       infoStage0,
-      infoStage1
+      infoStage1,
+      selectedPalette,
     };
   },
   methods: {
@@ -434,6 +452,7 @@ export default defineComponent({
       this.objectMatch = result.object_score;
       this.title = result.metadata.title;
       this.artist = result.metadata.artist;
+      this.selectedPalette = result.palette
       this.dialogOpen = true;
       this.showAnalysis = false;
       this.analysisImage =

@@ -4,29 +4,25 @@
     <q-form
       @submit="onSubmit"
       @reset="onReset"
-      class="q-gutter-md"
+      class="q-gutter-md q-pb-lg"
       style="width: 500px"
       v-show="!isProcessing"
     >
+    <div style="text-align: center;vertical-align: middle;">Select a precalculated image (faster) or upload your own image. (slower)</div>
     <q-scroll-area
       :thumb-style="thumbStyle"
       :bar-style="barStyle"
-      style="height: 300px;"
+      style="height: 380px;"
 
     >
     <div class="row">
-      <q-card class="col-5 q-ma-md">
-          <q-img src="https://placehold.co/600x400"/>
+      <q-card v-for="(artwork, index) in artworks" :key="index" class="col-5 q-ma-md clickable" id="artwork" @click="selectImage(artwork)">
+          <q-img :src="'artwork/' + artwork.name" :ratio="1" :style="[artwork.selected ? {'border': '4px solid rgb(224, 64, 55)'} : {'border': 'none'}]" />
       </q-card>
-
-      <q-card class="col-5 q-ma-md">
-          <q-img src="https://placehold.co/600x400"/>
-      </q-card>
-      
     </div>
 
-    </q-scroll-area>
 
+    </q-scroll-area>
       <q-file
         filled
         v-model="picture"
@@ -75,6 +71,15 @@
   align-items: center;
   height: 100%;
 }
+
+.clickable{
+  cursor: pointer;
+}
+
+.selected{
+  border: 4px solid rgb(224, 64, 55);
+  border-radius: 10px;
+}
 </style>
 
 <script>
@@ -91,6 +96,18 @@ export default defineComponent({
         localStorage.setItem("userID", Math.random().toString(16).slice(2));
         console.log("user id does not exist, creating new one" + localStorage.getItem("userID"))
     }
+
+    // Get all image names from assets/artwork
+    const artwork = require.context("../../public/artwork", false, /\.(png|jpe?g|svg)$/);
+    var artworks = artwork.keys().map((key) => key.match(/[^/]+$/)[0]);
+
+    // give every artwork a bool selected
+    artworks = ref(artworks.map((artwork) => {
+      return {
+        name: artwork,
+        selected: false,
+      };
+    }));
 
     const userID = localStorage.getItem("userID");
     const analytics_server = process.env.ANALYTICS_SERVER;
@@ -113,9 +130,17 @@ export default defineComponent({
       },
     });
 
-    return { axes, picture: ref(null), isProcessing: ref(false), queryImage: ref(null), userLogger };
+    return { axes, picture: ref(null), isProcessing: ref(false), queryImage: ref(null), userLogger, artworks, custom: ref(false) };
   },
   methods: {
+    selectImage(artwork) {
+      this.artworks.forEach((artwork) => {
+        artwork.selected = false;
+      });
+      artwork.selected = true;
+      this.userLogger.addAction({'name': 'Select precalculated image', 'Image': artwork.name})
+      this.custom = false;
+    },
     updateValue(axis) {
       this.axes[axis.name.toLowerCase()].value = axis.value;
     },
@@ -144,8 +169,53 @@ export default defineComponent({
       reader.readAsDataURL(this.picture);
       // log image upload
       this.userLogger.addAction({'name': 'Upload image', 'Image': this.picture.name})
+      this.custom = true;
+      // deselect precalculated images
+      this.artworks.forEach((artwork) => {
+        artwork.selected = false;
+      });
     },
-    onSubmit() {
+    sumitPrecalculated(){
+      const formData = new FormData();
+      formData.append("image_name", this.artworks.find((artwork) => artwork.selected).name);
+      formData.append("pose_weight", this.axes.pose.value);
+      formData.append("color_weight", this.axes.color.value);
+      formData.append("object_weight", this.axes.objects.value);
+      this.isProcessing = true;
+      localStorage.setItem("queryImage", "artwork/"+this.artworks.find((artwork) => artwork.selected).name);
+      const backend_server = process.env.BACKEND_SERVER;
+      // log submission
+      this.userLogger.addAction({'name': 'Submit search', 'Pose weight': this.axes.pose.value, 'Color weight': this.axes.color.value, 'Object weight': this.axes.objects.value})
+      axios
+        .post(backend_server+'/precalcsearch', formData)
+        .then(response => {
+          // handle successful response
+          // log success
+          this.userLogger.addAction({'name': 'Search success'})
+          this.isProcessing = false;
+          //redirect to results page
+          this.$router.push({
+            name: "Results",
+            state: {
+              image: this.picture,
+              results: response.data
+            },
+          });
+        })
+        .catch(error => {
+          // handle error
+          this.isProcessing = false;
+          this.$q.notify({
+            message: "Error: " + error,
+            color: "negative",
+            position: "top",
+            timeout: 2000,
+          });
+          // log error
+          this.userLogger.addAction({'name': 'Search error', 'Error': error})
+        });
+    },
+    submitCustomImage(){
       const formData = new FormData();
       formData.append("image", this.picture);
       formData.append("pose_weight", this.axes.pose.value);
@@ -185,6 +255,13 @@ export default defineComponent({
           // log error
           this.userLogger.addAction({'name': 'Search error', 'Error': error})
         });
+    },
+    onSubmit() {
+      if (this.custom) {
+        this.submitCustomImage();
+      } else {
+        this.sumitPrecalculated();
+      }
     },
     onAdvancedSettings() {
       const formData = new FormData();
