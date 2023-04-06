@@ -8,6 +8,25 @@
       style="width: 500px"
       v-show="!isProcessing"
     >
+    <q-scroll-area
+      :thumb-style="thumbStyle"
+      :bar-style="barStyle"
+      style="height: 300px;"
+
+    >
+    <div class="row">
+      <q-card class="col-5 q-ma-md">
+          <q-img src="https://placehold.co/600x400"/>
+      </q-card>
+
+      <q-card class="col-5 q-ma-md">
+          <q-img src="https://placehold.co/600x400"/>
+      </q-card>
+      
+    </div>
+
+    </q-scroll-area>
+
       <q-file
         filled
         v-model="picture"
