@@ -14,12 +14,66 @@ app = Flask(__name__)
 CORS(app)
 
 
+@app.route('/precalcsearch', methods=['GET', 'POST'])
+@cross_origin()
+def precalc_search():
+    pose_weight = float(request.form['pose_weight'])
+    object_weight = float(request.form['object_weight'])
+    color_weight = float(request.form['color_weight'])
+    # check if the post request has the file part
+    image_name = request.form['image_name']
+
+    # display the image
+    poses, pd_scores = op.get_precalc_pose_score(image_name)
+    od_scores = od.get_precalc_scores(image_name)
+    palette,cm_scores = cm.get_precalc_scores(image_name)
+
+    # get all image paths
+    with open('imagelist.pickle', 'rb') as handle:
+        path_list = pickle.load(handle)
+
+    path_list = set(path_list)
+
+    all_colors = cm.load_data()
+
+    result = {"results": []}
+    for path in path_list:
+        pose_score = pd_scores.get(path, 0)
+        object_score = od_scores.get(path, 0)
+        color_score = cm_scores.get(path, 0)
+
+        weighted_score = pose_weight * pose_score + object_weight * object_score + color_weight * color_score
+        # create dictionary of weighted score, pose score,object score, color score and path
+        scores = {"weighted_score": weighted_score, "pose_score": pose_score, "object_score": object_score,
+                  "color_score": color_score, "image_name": os.path.basename(path),
+                  "metadata": utils.get_metadata(os.path.basename(path)), "palette": all_colors[path]}
+        result["results"].append(scores)
+
+    # load image from \precalculated_images
+    result_image = cv2.imread("precalculated_images/" + image_name)
+    # enode image as base64 to transfer to frontend
+    _, img_encoded = cv2.imencode('.png', result_image)
+    result_image = base64.b64encode(img_encoded).decode('utf-8')
+
+    # add query image result to results
+    result["queryImage"] = {"colorpalette": palette,
+                            "result_image": result_image}
+
+    result["results"].sort(key=lambda x: x['weighted_score'], reverse=True)
+    # get first 30 results
+    result["results"] = result["results"][:60]
+    # print(results)
+
+    return jsonify(result)
 @app.route('/search', methods=['GET', 'POST'])
 @cross_origin()
 def search():
     pose_weight = float(request.form['pose_weight'])
     object_weight = float(request.form['object_weight'])
     color_weight = float(request.form['color_weight'])
+    #check if the post request has the file part
+
+
     image = request.files['image']
 
     # read the image file and convert to numpy array

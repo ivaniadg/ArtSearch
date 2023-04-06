@@ -327,8 +327,10 @@ def drawKeypoints(pose1: pd.DataFrame, show_image=False, size=512, image=[], col
 #     return similarity_scores
 
 def get_all_keypoints():
+    file_path = os.path.join(os.path.dirname(__file__), 'output', 'keypointsallnew.pickle')
+
     # load all keypoints
-    with open('pose_matching/output/keypointsallnew.pickle', 'rb') as handle:
+    with open(file_path, 'rb') as handle:
         poses = pickle.load(handle)
     return poses
 
@@ -337,6 +339,7 @@ def get_all_keypoints():
 def calculate_matches(query_poses):
     images = get_all_keypoints()  # Get keypoints (dictionary) for all poses in all pictures
 
+    # print(images)
     similarity_scores = {}  # Keep track of the similarity scores for each image
 
     for query_pose in query_poses:
@@ -406,3 +409,11 @@ def get_pose_score2(image):
         return None, {}
     else:
         return poses, calculate_matches_improved(poses)
+
+def get_precalc_pose_score(image_name):
+    poses = get_all_keypoints()
+    poses = poses.get(image_name, [])
+    if not poses:
+        return None, {}
+    else:
+        return poses, calculate_matches_improved({"":poses})
