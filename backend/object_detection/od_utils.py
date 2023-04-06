@@ -153,7 +153,9 @@ def save_data(data):
 
 
 def load_data():
-    with open('object_detection/output/objects4.pickle', 'rb') as handle:
+    file_path = os.path.join(os.path.dirname(__file__), 'output', 'objects4.pickle')
+
+    with open(file_path, 'rb') as handle:
         return pickle.load(handle)
 
 
@@ -275,3 +277,10 @@ def analyze_objects(image):
         print(o)
         results.append({"label": get_label(o), "id": o, "bool": True})
     return results
+
+
+def get_precalc_scores(image_name):
+    x = load_data()
+    objs = x[image_name]
+    # image, objs = get_objects(image)
+    return calculate_scores(objs, x)

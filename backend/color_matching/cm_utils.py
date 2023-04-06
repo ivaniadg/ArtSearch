@@ -36,7 +36,9 @@ def save_data(data):
 
 
 def load_data():
-    with open('color_matching/output/colors.pickle', 'rb') as handle:
+    file_path = os.path.join(os.path.dirname(__file__), 'output', 'colors.pickle')
+
+    with open(file_path, 'rb') as handle:
         return pickle.load(handle)
 
 
@@ -217,3 +219,8 @@ def calculate_matches(colors, data) -> dict:
 def get_color_scores(colors):
     x = load_data()
     return calculate_matches(colors, x)
+
+def get_precalc_scores(image_name):
+    x = load_data()
+    colors = x[image_name]
+    return colors,calculate_matches(colors, x)
