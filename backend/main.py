@@ -135,7 +135,7 @@ def precalc_advancedSearch():
     analyse_objects = od.precalc_analyze_objects(image_name)
     analyse_colors = cm.precalc_analyze_colors(image_name)
 
-    result = {"pose": analyse_pose, "objects": analyse_objects, "colors": analyse_colors}
+    result = {"type": "precalc" ,"image_name": image_name,"pose": analyse_pose, "objects": analyse_objects, "colors": analyse_colors}
     return jsonify(result)
 
 
@@ -159,7 +159,7 @@ def advancedSearch():
     # remove temp image
     os.remove("temp/" + image.filename)
 
-    result = {"pose": analyse_pose, "objects": analyse_objects, "colors": analyse_colors}
+    result = {"type": "custom", "pose": analyse_pose, "objects": analyse_objects, "colors": analyse_colors}
     return jsonify(result)
 
 

@@ -1,9 +1,31 @@
 version: "3.9"
 services:
-  user_app:
+  user_app1:
     image: user_app:lastest
     build:
-      context: ./frontend/user_app
+      context: ./frontend/user_app1
+      dockerfile: Dockerfile
+    links:
+      - analytics_app
+    environment:
+      - ANALYTICS_SERVER=http://localhost:3787/analytics
+    ports:
+      - "3786:80"
+  user_app2:
+    image: user_app:lastest
+    build:
+      context: ./frontend/user_app2
+      dockerfile: Dockerfile
+    links:
+      - analytics_app
+    environment:
+      - ANALYTICS_SERVER=http://localhost:3787/analytics
+    ports:
+      - "3786:80"
+  user_app3:
+    image: user_app:lastest
+    build:
+      context: ./frontend/user_app3
       dockerfile: Dockerfile
     links:
       - analytics_app
