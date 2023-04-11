@@ -53,7 +53,7 @@ module.exports = configure(function (ctx) {
     build: {
       vueRouterMode: 'hash', // available values: 'hash', 'history'
       env: {
-        ANALYTICS_SERVER: 'http://localhost:5003/analytics',
+        ANALYTICS_SERVER: 'http://localhost:3893/analytics',
         BACKEND_SERVER: 'http://localhost:3785',
       },
 

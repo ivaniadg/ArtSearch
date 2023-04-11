@@ -92,11 +92,6 @@ export default defineComponent({
   components: { Slider },
   name: "IndexPage",
   setup() {
-    if (!localStorage.getItem("userID")){
-        localStorage.setItem("userID", Math.random().toString(16).slice(2));
-        console.log("user id does not exist, creating new one" + localStorage.getItem("userID"))
-    }
-
     // Get all image names from assets/artwork
     const artwork = require.context("../../public/artwork", false, /\.(png|jpe?g|svg)$/);
     var artworks = artwork.keys().map((key) => key.match(/[^/]+$/)[0]);

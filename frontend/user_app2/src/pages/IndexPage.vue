@@ -37,13 +37,6 @@
       </div>
 
       <q-list dense>
-        <Slider
-          v-for="(axis, index) in axes"
-          :key="index"
-          :axis="axis"
-          @update:value="updateValue"
-          @change="value=>userLogger.addAction({'name': 'Change weight', 'Axis': axis.name, 'Value': value })"
-        ></Slider>
       </q-list>
       <div class="center-button">
         <q-btn
@@ -52,12 +45,6 @@
           label="Search"
           type="submit"
           color="primary"
-        /><q-btn
-          class="q-mx-lg"
-          label="Advanced Options"
-          size="sm"
-          color="secondary"
-          @click="onAdvancedSettings()"
         />
       </div>
     </q-form>
@@ -84,19 +71,12 @@
 
 <script>
 import { defineComponent, ref } from "vue";
-import Slider from "../components/Slider.vue";
 import axios from "axios";
 import UserLogger from "../UserLogger";
 
 export default defineComponent({
-  components: { Slider },
   name: "IndexPage",
   setup() {
-    if (!localStorage.getItem("userID")){
-        localStorage.setItem("userID", Math.random().toString(16).slice(2));
-        console.log("user id does not exist, creating new one" + localStorage.getItem("userID"))
-    }
-
     // Get all image names from assets/artwork
     const artwork = require.context("../../public/artwork", false, /\.(png|jpe?g|svg)$/);
     var artworks = artwork.keys().map((key) => key.match(/[^/]+$/)[0]);
@@ -114,7 +94,7 @@ export default defineComponent({
     var userLogger = new UserLogger(analytics_server,
         10, 20, 'data', {'userID': userID,
             'page': 'index',
-            'condition': 'sliders+advancedoptions'})
+            'condition': 'No sliders + No advancedoptions'})
     const axes = ref({
       pose: {
         name: "Pose",
