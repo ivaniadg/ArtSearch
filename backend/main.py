@@ -60,6 +60,8 @@ def precalc_search():
                             "result_image": result_image}
 
     result["results"].sort(key=lambda x: x['weighted_score'], reverse=True)
+    # remove the first element, because it is the query image
+    result["results"].pop(0)
     # get first 30 results
     result["results"] = result["results"][:60]
     # print(results)
@@ -339,6 +341,8 @@ def precalc_advancedSearchQuery():
         result["results"].append(scores)
 
     result["results"].sort(key=lambda x: x['weighted_score'], reverse=True)
+    #remove the first element, because it is the query image
+    result["results"].pop(0)
 
     # load image from precalculated_images
     result_image = cv2.imread("precalculated_images/" + image_name)
