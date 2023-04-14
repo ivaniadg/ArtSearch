@@ -69,7 +69,7 @@ export default {
     var userLogger = new UserLogger(analytics_server,
         10, 20, 'data', {'userID': userID,
             'page': 'AdvancedSettings',
-            'condition': 'sliders+advancedoptions'})
+            'condition': 'No sliders + No advancedoptions'})
 
     const analyzed_pose = history.state.advancedSettings.pose;
     const analyzed_colors = history.state.advancedSettings.colors;

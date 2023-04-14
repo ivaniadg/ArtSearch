@@ -10,6 +10,6 @@ RUN pip install -r requirements.txt
 COPY . /queue
 WORKDIR /queue
 
-EXPOSE 5000
+EXPOSE 3897
 
 ENTRYPOINT celery -A app.task_broker worker --loglevel=info

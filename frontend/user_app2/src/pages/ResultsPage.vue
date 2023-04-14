@@ -281,7 +281,7 @@ export default defineComponent({
     var userLogger = new UserLogger( analytics_server ,
         10, 20, 'data', {'user': userID,
             'page': 'AdvancedSettings',
-            'condition': 'sliders+advancedoptions'});
+            'condition': 'No sliders + No advancedoptions'});
 
     const isPrecalulated = localStorage.getItem("precalculated")
     const queryImage = localStorage.getItem("queryImage");

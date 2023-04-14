@@ -1,38 +1,38 @@
 version: "3.9"
 services:
   user_app1:
-    image: user_app:lastest
+    image: user_app1:lastest
     build:
       context: ./frontend/user_app1
       dockerfile: Dockerfile
     links:
       - analytics_app
     environment:
-      - ANALYTICS_SERVER=http://localhost:3787/analytics
+      - ANALYTICS_SERVER=http://picasso.experiments.cs.kuleuven.be:3787/analytics
     ports:
       - "3786:80"
   user_app2:
-    image: user_app:lastest
+    image: user_app2:lastest
     build:
       context: ./frontend/user_app2
       dockerfile: Dockerfile
     links:
       - analytics_app
     environment:
-      - ANALYTICS_SERVER=http://localhost:3787/analytics
+      - ANALYTICS_SERVER=http://picasso.experiments.cs.kuleuven.be:3787/analytics
     ports:
-      - "3786:80"
+      - "3891:80"
   user_app3:
-    image: user_app:lastest
+    image: user_app3:lastest
     build:
       context: ./frontend/user_app3
       dockerfile: Dockerfile
     links:
       - analytics_app
     environment:
-      - ANALYTICS_SERVER=http://localhost:3787/analytics
+      - ANALYTICS_SERVER=http://picasso.experiments.cs.kuleuven.be:3787/analytics
     ports:
-      - "3786:80"
+      - "3892:80"
   analytics_app:
     image: analytics_app:lastest
     build:
@@ -40,7 +40,7 @@ services:
       dockerfile: Dockerfile
     restart: always
     ports:
-     - "5003:5000"
+     - "3893:5000"
     links:
       - redis
     depends_on:
@@ -57,8 +57,9 @@ services:
       - redis
   redis:
       image: "redis:alpine"
+      command: --port 3894
       ports:
-        - "6379:6379"
+        - "3894:3894"
   db:
     image: db:latest
     build: 
@@ -67,7 +68,8 @@ services:
     env_file:
       - ./frontend/analytics_app/postgres.env
     ports:
-      - '5433:5432'
+      - '3895:3895'
+    command: -p 3895
   backend:
     image: backend:lastest
     build:
