@@ -60,8 +60,8 @@ services:
       command: --port 3894
       ports:
         - "3894:3894"
-  db:
-    image: db:latest
+  analytics_db:
+    image: analytics_db:latest
     build: 
       context: ./frontend/analytics_app
       dockerfile: Dockerfile_db
