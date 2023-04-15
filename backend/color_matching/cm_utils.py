@@ -26,14 +26,16 @@ def process_folder(path):
             print(i)
             index[path + image_name] = palette
 
+
     save_data(index)
     return index
 
 
-def save_data(data):
-    with open('color_matching/output/colors.pickle', 'wb') as handle:
-        pickle.dump(data, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
+def save_data(data):
+    file_path = os.path.join(os.path.dirname(__file__), 'output', 'colors.pickle')
+    with open(file_path, 'wb') as handle:
+        pickle.dump(data, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 def load_data():
     file_path = os.path.join(os.path.dirname(__file__), 'output', 'colors.pickle')

@@ -24,8 +24,10 @@ def get_keypoints(image, image_name="") -> dict:
     args = parser.parse_known_args()
 
     # Custom Params (refer to include/openpose/flags.hpp for more parameters)
+    file_path = os.path.join(os.path.dirname(__file__), 'models')
+    print(file_path)
     params = dict()
-    params["model_folder"] = "pose_matching/models/"
+    params["model_folder"] = file_path
     params["net_resolution"] = "320x320"
 
     BODY_PARTS = op.getPoseBodyPartMapping(op.BODY_25)
@@ -345,6 +347,11 @@ def drawKeypoints(pose1: pd.DataFrame, show_image=False, size=512, image=[], col
 #             score += similarity_score(pose1, pose2)
 #         similarity_scores.append((score, pose1.iloc[0].path))
 #     return similarity_scores
+def save_data(data):
+    file_path = os.path.join(os.path.dirname(__file__), 'output', 'keypointsallnew.pickle')
+
+    with open(file_path, 'wb') as handle:
+        pickle.dump(data, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 def get_all_keypoints():
     file_path = os.path.join(os.path.dirname(__file__), 'output', 'keypointsallnew.pickle')
@@ -353,7 +360,6 @@ def get_all_keypoints():
     with open(file_path, 'rb') as handle:
         poses = pickle.load(handle)
     return poses
-
 
 ## Method 1: Calculate the similarity score between two poses. loops through all the poses and takes the best score for each pose. this is the score for the image
 def calculate_matches(query_poses):

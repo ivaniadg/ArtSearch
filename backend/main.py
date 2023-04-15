@@ -70,6 +70,7 @@ def precalc_search():
 @app.route('/search', methods=['GET', 'POST'])
 @cross_origin()
 def search():
+
     pose_weight = float(request.form['pose_weight'])
     object_weight = float(request.form['object_weight'])
     color_weight = float(request.form['color_weight'])
@@ -81,10 +82,11 @@ def search():
     # read the image file and convert to numpy array
     img_array = np.frombuffer(image.read(), np.uint8)
     img = cv2.imdecode(img_array, cv2.IMREAD_COLOR)
-    # display the image
+
     poses, pd_scores = op.get_pose_score2(img)
     result_image, od_scores = od.get_object_score(img)
-    result_image = op.draw_poses(result_image, poses)
+    if poses:
+        result_image = op.draw_poses(result_image, poses)
 
     image.stream.seek(0)
     image.save("temp/" + image.filename)

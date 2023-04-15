@@ -1,7 +1,7 @@
 import os
 import pickle
 
-#function that saves all image names of a folder in a list and saves it to a pickle file
+# function that saves all image names of a folder in a list and saves it to a pickle file
 # def get_image_names():
 #     names = []
 #     for i, image in enumerate(os.listdir("/home/mortirreke/Desktop/assets/")):
