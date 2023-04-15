@@ -294,7 +294,6 @@ export default defineComponent({
       // log advanced settings
       this.userLogger.addAction({'name': 'clicked on advanced settings', 'Image': selected.name})
       localStorage.setItem("queryImage", "artwork/"+this.artworks.find((artwork) => artwork.selected).name);
-
       formData.append("image_name", selected.name);
       const backend_server = process.env.BACKEND_SERVER;
       axios
