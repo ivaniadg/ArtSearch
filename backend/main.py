@@ -255,6 +255,7 @@ def advancedSearchQuery():
         result["results"].append(scores)
 
     result["results"].sort(key=lambda x: x['weighted_score'], reverse=True)
+    result["results"] = result["results"][:60]
 
 
     # enode image as base64 to transfer to frontend
@@ -345,6 +346,7 @@ def precalc_advancedSearchQuery():
     result["results"].sort(key=lambda x: x['weighted_score'], reverse=True)
     #remove the first element, because it is the query image
     result["results"].pop(0)
+    result["results"] = result["results"][:60]
 
     # load image from precalculated_images
     result_image = cv2.imread("precalculated_images/" + image_name)
