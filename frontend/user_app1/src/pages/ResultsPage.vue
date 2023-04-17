@@ -1,6 +1,17 @@
 <template>
   <q-page class="row">
     <div class="col-3">
+      <h5 class="q-pa-xs q-ma-xs text-center">selected options</h5>
+      <div class="q-px-lg">
+      <div class="text-overline">Pose weight</div>
+      <q-linear-progress :value="poseWeight" class="q-my-xs" />
+
+      <div class="text-overline">Color weight</div>
+      <q-linear-progress :value="colorWeight" class="q-my-xs" />
+
+      <div class="text-overline">Objects weight</div>
+      <q-linear-progress :value="objectWeight" class="q-my-xs" />
+      </div>
       <img
         :src="queryImage"
         class="q-pa-lg"
@@ -285,7 +296,10 @@ export default defineComponent({
 
     const isPrecalulated = localStorage.getItem("precalculated")
     const queryImage = localStorage.getItem("queryImage");
-
+    
+    const poseWeight = localStorage.getItem("PoseWeight");
+    const colorWeight = localStorage.getItem("ColorWeight");
+    const objectWeight = localStorage.getItem("ObjectWeight");
 
     const result = history.state.results;
     const results = ref(result.results);
@@ -344,6 +358,9 @@ export default defineComponent({
       infoStage0,
       infoStage1,
       selectedPalette,
+      colorWeight,
+      poseWeight,
+      objectWeight,
     };
   },
   methods: {

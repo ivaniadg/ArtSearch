@@ -170,6 +170,11 @@ export default defineComponent({
       formData.append("pose_weight", this.axes.pose.value);
       formData.append("color_weight", this.axes.color.value);
       formData.append("object_weight", this.axes.objects.value);
+
+      localStorage.setItem("PoseWeight", this.axes.pose.value);
+      localStorage.setItem("ColorWeight", this.axes.color.value);
+      localStorage.setItem("ObjectWeight", this.axes.objects.value);
+
       this.isProcessing = true;
       localStorage.setItem("queryImage", "artwork/"+this.artworks.find((artwork) => artwork.selected).name);
       const backend_server = process.env.BACKEND_SERVER;
@@ -209,8 +214,12 @@ export default defineComponent({
       formData.append("image", this.picture);
       formData.append("pose_weight", this.axes.pose.value);
       formData.append("color_weight", this.axes.color.value);
-      // formData.append("style_weight", this.axes.style.value);
       formData.append("object_weight", this.axes.objects.value);
+
+      localStorage.setItem("PoseWeight", this.axes.pose.value);
+      localStorage.setItem("ColorWeight", this.axes.color.value);
+      localStorage.setItem("ObjectWeight", this.axes.objects.value);
+
       this.isProcessing = true;
       this.saveToLocalStorage();
       const backend_server = process.env.BACKEND_SERVER;
