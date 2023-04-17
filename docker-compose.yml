@@ -64,6 +64,8 @@ services:
     ports:
       - '3895:3895'
     command: -p 3895
+    volumes:
+      - db-data:/var/lib/postgresql/data
   backend:
     image: backend:lastest
     build:
@@ -71,3 +73,5 @@ services:
       dockerfile: Dockerfile
     ports:
       - "3785:3785"
+volumes:
+  db-data:
