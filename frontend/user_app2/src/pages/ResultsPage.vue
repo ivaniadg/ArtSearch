@@ -424,7 +424,7 @@ export default defineComponent({
           console.log("select")
           result["selected"] = this.counter;
           this.counter++;
-          if (this.counter == 11) {
+          if (this.counter == 6) {
             this.complete = true;
           }
         }
@@ -433,7 +433,7 @@ export default defineComponent({
           this.s1_top10.push({"image_name":result.image_name, "personal_rank": this.counter, "real_rank": this.results.indexOf(result)+1});
           result["selected"] = this.counter;
           this.counter++;
-          if (this.counter == 11) {
+          if (this.counter == 6) {
             this.complete = true;
           }
         }
