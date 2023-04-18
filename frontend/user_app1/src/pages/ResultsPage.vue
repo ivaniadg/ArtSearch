@@ -296,7 +296,7 @@ export default defineComponent({
 
     const isPrecalulated = localStorage.getItem("precalculated")
     const queryImage = localStorage.getItem("queryImage");
-    
+
     const poseWeight = localStorage.getItem("PoseWeight");
     const colorWeight = localStorage.getItem("ColorWeight");
     const objectWeight = localStorage.getItem("ObjectWeight");
@@ -373,7 +373,7 @@ export default defineComponent({
     },
     submitTop10(){
       // SUBMIT TOP 10 together with the user's data
-      if (this.stage==0 && this.s0_top10.length == 10) {
+      if (this.stage==0 && this.s0_top10.length == 5) {
         this.userLogger.addAction({'name': 'Submit Top 10', 'stage': 0})
         this.complete = false;
         this.stage = 1;
@@ -384,7 +384,7 @@ export default defineComponent({
         this.infoStage1 = true;
         });
       }
-      if (this.stage==1 && this.s1_top10.length == 10) {
+      if (this.stage==1 && this.s1_top10.length == 5) {
         this.userLogger.addAction({'name': 'Submit Top 10', 'stage': 1})
         this.complete = false;
         this.selectionMode = false;
@@ -435,7 +435,7 @@ export default defineComponent({
     },
     handleClick(result) {
       if (this.selectionMode) {
-        if (this.stage == 0 && !this.s0_top10.some(obj => obj.image_name === result.image_name) && this.counter <= 10) {
+        if (this.stage == 0 && !this.s0_top10.some(obj => obj.image_name === result.image_name) && this.counter <= 5) {
           this.userLogger.addAction({'name': 'addToTop10', 'stage': 0, 'image': result.image_name, 'rank': this.counter})
           this.s0_top10.push({"image_name":result.image_name, "personal_rank": this.counter, "real_rank": this.results.indexOf(result)+1});
           console.log("select")
@@ -445,7 +445,7 @@ export default defineComponent({
             this.complete = true;
           }
         }
-        if (this.stage == 1 &&  !this.s1_top10.some(obj => obj.image_name === result.image_name) && this.counter <= 10) {
+        if (this.stage == 1 &&  !this.s1_top10.some(obj => obj.image_name === result.image_name) && this.counter <= 5) {
           this.userLogger.addAction({'name': 'addToTop10', 'stage': 1, 'image': result.image_name, 'rank': this.counter})
           this.s1_top10.push({"image_name":result.image_name, "personal_rank": this.counter, "real_rank": this.results.indexOf(result)+1});
           result["selected"] = this.counter;
