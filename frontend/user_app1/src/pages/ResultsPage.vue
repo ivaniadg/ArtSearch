@@ -97,10 +97,16 @@
           <div class="centered" v-show="selectionMode">{{ result.selected }}</div>
         </q-card>
       </div>
-      <q-dialog v-model="dialogOpen" @hide="this.userLogger.addAction({'name': 'CloseDialog', 'image': this.title})">
-        <q-card style="width: 1200px; max-width: 110vw">
-          <q-card-section class="row">
-            <div class="col-6">
+      <q-dialog v-model="dialogOpen" full-height @hide="this.userLogger.addAction({'name': 'CloseDialog', 'image': this.title})">
+        <q-card style="width: 1400px; max-width: 150vw">
+          <q-card-section >
+            <div class="row">
+              <q-space />
+                <q-btn icon="close" flat round v-close-popup />
+            </div>
+            <div class="row">
+              <div class="col-4">
+              <div class="row q-pa-xs text-h5 row justify-center"> "{{ title }}" by {{ artist }}</div>
               <q-img
                 class="dialog-img"
                 :src="dialogImage"
@@ -121,7 +127,6 @@
                   </q-tooltip></q-icon
                 >
               </q-img>
-
               <q-img
                 class="dialog-img"
                 :src="analysisImage"
@@ -141,26 +146,7 @@
                   </q-tooltip></q-icon
                 >
               </q-img>
-            </div>
-
-            <div class="col-6 q-pa-md">
-              <div class="row">
-                <div class="text-h2">{{ title }}</div>
-                <q-space />
-                <q-btn icon="close" flat round v-close-popup />
-              </div>
-              <div class="row q-pa-xs text-h5">By {{ artist }}</div>
-              <div class="row" style="height: 60%" v-show="stage==1">
-                <div class="text-overline">Pose</div>
-                <q-linear-progress :value="poseMatch" class="q-my-xs" />
-
-                <div class="text-overline">Color</div>
-                <q-linear-progress :value="colorMatch" class="q-my-xs" />
-
-                <div class="text-overline">Objects</div>
-                <q-linear-progress :value="objectMatch" class="q-my-xs" />
-
-                <div class="row q-py-lg">
+              <div class="row q-py-sm">
                   <div
                     class="col-4"
                     style="display: flex; align-items: center"
@@ -179,7 +165,49 @@
                     </div>
                   </div>
                 </div>
+            </div>
+
+            <div class="col-4 self-center q-pa-md">
+              <div class="text-h5 row justify-center">Relevance</div>
+              <div v-show="stage==1">
+                <div class="">
+                <div class="text-overline">Pose</div>
+                <q-linear-progress :value="poseMatch" class="q-my-xs" />
+
+                <div class="text-overline">Color</div>
+                <q-linear-progress :value="colorMatch" class="q-my-xs" />
+
+                <div class="text-overline">Objects</div>
+                <q-linear-progress :value="objectMatch" class="q-my-xs" />
+                </div>
               </div>
+            </div>
+            <div class="col-4">
+
+                <div class="text-h5 row justify-center">Your image</div>
+              <div class="row q-py-lg">
+                <q-img class="dialog-img" :src="'data:image/png;base64, ' + resultImage" height="100%"/>
+        
+                  <div
+                    class="col-4"
+                    style="display: flex; align-items: center"
+                    v-for="(color, index) in queryColors"
+                    v-bind:key="index"
+
+                  >
+                    <div
+                      class="box q-ma-sm"
+                      :style="{
+                        backgroundColor:
+                          'rgb(' + color[0] + ',' + color[1] + ',' + color[2] + ')',
+                      }"
+                    ></div>
+                    <div class="text-weight-bold" style="font-size: 10px">
+                      ({{ color[0] }}, {{ color[1] }}, {{ color[2] }})
+                    </div>
+                  </div>
+                </div>
+            </div>
             </div>
           </q-card-section>
         </q-card>
@@ -296,7 +324,7 @@ export default defineComponent({
 
     const isPrecalulated = localStorage.getItem("precalculated")
     const queryImage = localStorage.getItem("queryImage");
-    
+
     const poseWeight = localStorage.getItem("PoseWeight");
     const colorWeight = localStorage.getItem("ColorWeight");
     const objectWeight = localStorage.getItem("ObjectWeight");
@@ -318,7 +346,7 @@ export default defineComponent({
     const showAnalysis = ref(false);
     const title = ref("Title");
     const artist = ref("Artist");
-    const stage = ref(0); // 0: before selecting top 10, 1: after selecting top 10
+    const stage = ref(1); // 0: before selecting top 10, 1: after selecting top 10
     const s0_top10 = ref([]);
     const s1_top10 = ref([]);
     const counter = ref(1);
