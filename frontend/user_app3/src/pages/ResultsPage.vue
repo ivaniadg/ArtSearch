@@ -74,8 +74,8 @@
         <div class="col-md-3"><h2 class="q-my-none">results</h2> </div>
         <div class="col-md-3 q-pa-md"><q-btn round color="primary" icon="info" @click="showInfo"/></div>
         <q-toggle v-model="selectionMode" label="selection mode" v-show="!sent_top10"/>
-        <q-btn class="q-ma-md" v-if="selectionMode" label="Submit top 10" color="primary" @click="submitTop10" :disabled="!complete"/>
-        <q-btn class="q-ma-md" v-if="selectionMode" label="Reset top 10" color="primary" @click="resetTop10"/>
+        <q-btn class="q-ma-md" v-if="selectionMode" :label="'Submit top ' + this.topX" color="primary" @click="submitTop10" :disabled="!complete"/>
+        <q-btn class="q-ma-md" v-if="selectionMode" :label="'Submit top ' + this.topX " color="primary" @click="resetTop10"/>
       </div>
 
       <div class="row q-gutter-sm q-ma-sm justify-left">
@@ -199,12 +199,12 @@
 
         <q-card-section class="q-pt-none">
           This is the first stage of the experiment. You will be shown a set of results that are similar to the image you selected.
-          You are asked to select the top 10 images that you think are the most similar to your selected image.
+          You are asked to select the top {{this.topX}} images that you think are the most similar to your selected image.
           <br><br>
           First, you can take a closer look by clicking on the images. If you want to select an image,
-          you can click on the toggle button "selection mode" on the top right corner and click on the image. If you made a mistake, you can reset your selection by clicking on the "Reset top 10" button.
+          you can click on the toggle button "selection mode" on the top right corner and click on the image. If you made a mistake, you can reset your selection by clicking on the "Reset top {{this.topX}}" button.
           <br><br>
-          Finally you can submit your top 10 images by clicking on the "Submit top 10" button.
+          Finally you can submit your top {{this.topX}} images by clicking on the "Submit top {{this.topX}}" button.
         </q-card-section>
 
         <q-card-actions align="right">
@@ -219,14 +219,14 @@
         </q-card-section>
 
         <q-card-section class="q-pt-none">
-          This is the second stage and last stage of the experiment. You will be asked again to select the top 10 images that you think are the most similar to your selected image.
+          This is the second stage and last stage of the experiment. You will be asked again to select the top {{this.topX}} images that you think are the most similar to your selected image.
           <br><br>
           This time, you can review the output of the system's analysis of your selected image (left bottom on your screen).
 
           When clicking on an image, you can click on the <q-icon size="md" color="purple" name="psychology_alt"/> icon on the top left corner of the image to reveal the details of the analysis.
           There's also 3 different bars that show the similarity of the image to your selected image in terms of pose, color and objects.
           <br><br>
-          You can again select the top 10 images like in the first stage and submit them.
+          You can again select the top {{this.topX}} images like in the first stage and submit them.
         </q-card-section>
 
         <q-card-actions align="right">
@@ -329,6 +329,7 @@ export default defineComponent({
     const infoStage0 = ref(true);
     const infoStage1 = ref(false);
     const selectedPalette = ref([]);
+    const topX = 6;
     return {
       options,
       selected,
@@ -362,6 +363,7 @@ export default defineComponent({
       objectWeight,
       colorWeight,
       poseWeight,
+      topX,
     };
   },
   methods: {
@@ -374,7 +376,7 @@ export default defineComponent({
     },
     submitTop10(){
       // SUBMIT TOP 10 together with the user's data
-      if (this.stage==0 && this.s0_top10.length == 10) {
+      if (this.stage==0 && this.s0_top10.length == this.topX) {
         this.userLogger.addAction({'name': 'Submit Top 10', 'stage': 0})
         this.complete = false;
         this.stage = 1;
@@ -385,7 +387,7 @@ export default defineComponent({
         this.infoStage1 = true;
         });
       }
-      if (this.stage==1 && this.s1_top10.length == 10) {
+      if (this.stage==1 && this.s1_top10.length == this.topX) {
         this.userLogger.addAction({'name': 'Submit Top 10', 'stage': 1})
         this.complete = false;
         this.selectionMode = false;
@@ -436,22 +438,22 @@ export default defineComponent({
     },
     handleClick(result) {
       if (this.selectionMode) {
-        if (this.stage == 0 && !this.s0_top10.some(obj => obj.image_name === result.image_name) && this.counter <= 10) {
+        if (this.stage == 0 && !this.s0_top10.some(obj => obj.image_name === result.image_name) && this.counter <= this.topX) {
           this.userLogger.addAction({'name': 'addToTop10', 'stage': 0, 'image': result.image_name, 'rank': this.counter})
           this.s0_top10.push({"image_name":result.image_name, "personal_rank": this.counter, "real_rank": this.results.indexOf(result)+1});
           console.log("select")
           result["selected"] = this.counter;
           this.counter++;
-          if (this.counter == 11) {
+          if (this.counter == this.topX+1) {
             this.complete = true;
           }
         }
-        if (this.stage == 1 &&  !this.s1_top10.some(obj => obj.image_name === result.image_name) && this.counter <= 10) {
+        if (this.stage == 1 &&  !this.s1_top10.some(obj => obj.image_name === result.image_name) && this.counter <= this.topX) {
           this.userLogger.addAction({'name': 'addToTop10', 'stage': 1, 'image': result.image_name, 'rank': this.counter})
           this.s1_top10.push({"image_name":result.image_name, "personal_rank": this.counter, "real_rank": this.results.indexOf(result)+1});
           result["selected"] = this.counter;
           this.counter++;
-          if (this.counter == 11) {
+          if (this.counter == this.topX+1) {
             this.complete = true;
           }
         }

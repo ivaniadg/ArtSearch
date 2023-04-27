@@ -79,7 +79,7 @@ def process_top10(self, data):
     db.session.commit()
 
 
-def precision_at_k(images, k=10):
+def precision_at_k(images, k=6):
     """
     Calculates precision at k.
 
