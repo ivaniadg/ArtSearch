@@ -1,5 +1,27 @@
 <template>
   <q-page class="flex flex-center">
+    <q-dialog v-model="dialog" persistent>
+      <q-card>
+        <q-card-section>
+          <div class="text-h6">Instructions</div>
+        </q-card-section>
+
+        <q-card-section class="q-pt-none">
+          Hi, first of all, thank you for participating in my user study. In this study, you are given a certain version of the application I've built for my thesis research.
+          <br>
+          <br>
+          The application is a search engine for finding similar artworks. you can define your definition of similarity by adjusting the sliders on this page, and then click on search to see the results. For example, if you want to find artworks that are similar in color, you can increase the color slider and decrease the other sliders.
+
+          <br>
+          <br>
+          To minimise bias in my research, I already selected a picture for you. I would like you to use the sliders and change them to your liking, followed by clicking search. On the next page, you will be given a further set of instructions.
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn flat label="OK" color="primary" v-close-popup />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
     <q-spinner color="primary" size="3em" v-show="isProcessing" />
     <q-form
       @submit="onSubmit"
@@ -8,7 +30,7 @@
       style="width: 500px"
       v-show="!isProcessing"
     >
-    <div style="text-align: center;vertical-align: middle;">Select a precalculated image (faster) or upload your own image. (slower)</div>
+    <!-- <div style="text-align: center;vertical-align: middle;">Select a precalculated image (faster) or upload your own image. (slower)</div>
     <q-scroll-area
       :thumb-style="thumbStyle"
       :bar-style="barStyle"
@@ -22,15 +44,22 @@
     </div>
 
 
-    </q-scroll-area>
-      <q-file
+
+    </q-scroll-area> -->
+
+    <q-card>
+          <q-img src="artwork/unknown_unknown.jpg" :ratio="1" />
+    </q-card>
+
+
+      <!-- <q-file
         filled
         v-model="picture"
         label="Click to upload image"
         hint="Image must be in .jpg or .png format"
         accept="image/*"
         @update:model-value="onInput"
-              />
+              /> -->
       <!-- display picture when uploaded -->
       <div v-if="picture">
         <q-img :src="queryImage" style="width: 100%" />
@@ -52,13 +81,14 @@
           label="Search"
           type="submit"
           color="primary"
-        /><q-btn
+        />
+        <!-- <q-btn
           class="q-mx-lg"
           label="Advanced Options"
           size="sm"
           color="secondary"
           @click="onAdvancedSettings()"
-        />
+        /> -->
       </div>
     </q-form>
   </q-page>
@@ -125,7 +155,7 @@ export default defineComponent({
       },
     });
 
-    return { axes, picture: ref(null), isProcessing: ref(false), queryImage: ref(null), userLogger, artworks, custom: ref(false) };
+    return { axes, picture: ref(null), isProcessing: ref(false), queryImage: ref(null), userLogger, artworks, custom: ref(false), dialog: ref(true) };
   },
   methods: {
     selectImage(artwork) {
@@ -172,7 +202,7 @@ export default defineComponent({
     },
     sumitPrecalculated(){
       const formData = new FormData();
-      formData.append("image_name", this.artworks.find((artwork) => artwork.selected).name);
+      formData.append("image_name", "unknown_unknown.jpg");
       formData.append("pose_weight", this.axes.pose.value);
       formData.append("color_weight", this.axes.color.value);
       formData.append("object_weight", this.axes.objects.value);
@@ -182,7 +212,7 @@ export default defineComponent({
       localStorage.setItem("ObjectWeight", this.axes.objects.value);
 
       this.isProcessing = true;
-      localStorage.setItem("queryImage", "artwork/"+this.artworks.find((artwork) => artwork.selected).name);
+      localStorage.setItem("queryImage", "artwork/unknown_unknown.jpg");
       const backend_server = process.env.BACKEND_SERVER;
       // log submission
       this.userLogger.addAction({'name': 'Submit search', 'Pose weight': this.axes.pose.value, 'Color weight': this.axes.color.value, 'Object weight': this.axes.objects.value})
@@ -221,7 +251,7 @@ export default defineComponent({
       formData.append("pose_weight", this.axes.pose.value);
       formData.append("color_weight", this.axes.color.value);
       formData.append("object_weight", this.axes.objects.value);
-      
+
       localStorage.setItem("PoseWeight", this.axes.pose.value);
       localStorage.setItem("ColorWeight", this.axes.color.value);
       localStorage.setItem("ObjectWeight", this.axes.objects.value);
@@ -261,11 +291,7 @@ export default defineComponent({
         });
     },
     onSubmit() {
-      if (this.custom) {
-        this.submitCustomImage();
-      } else {
-        this.sumitPrecalculated();
-      }
+      this.sumitPrecalculated();
     },
     onAdvancedSettingsCustom(){
       const formData = new FormData();

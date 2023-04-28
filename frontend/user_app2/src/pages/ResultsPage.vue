@@ -1,6 +1,17 @@
 <template>
   <q-page class="row">
     <div class="col-3">
+      <h5 class="q-pa-xs q-ma-xs text-center">selected options</h5>
+      <div class="q-px-lg">
+      <div class="text-overline">Pose weight</div>
+      <q-linear-progress :value="poseWeight" class="q-my-xs" />
+
+      <div class="text-overline">Color weight</div>
+      <q-linear-progress :value="colorWeight" class="q-my-xs" />
+
+      <div class="text-overline">Objects weight</div>
+      <q-linear-progress :value="objectWeight" class="q-my-xs" />
+      </div>
       <img
         :src="queryImage"
         class="q-pa-lg"
@@ -64,7 +75,7 @@
         <div class="col-md-3 q-pa-md"><q-btn round color="primary" icon="info" @click="showInfo"/></div>
         <q-toggle v-model="selectionMode" label="selection mode" v-show="!sent_top10"/>
         <q-btn class="q-ma-md" v-if="selectionMode" :label="'Submit top ' + this.topX " color="primary" @click="submitTop10" :disabled="!complete"/>
-        <q-btn class="q-ma-md" v-if="selectionMode" :label="'Reset top ' + this.topX " color="primary" @click="resetTop10"/>
+        <q-btn class="q-ma-md" v-if="selectionMode" :label="'Reset top ' +  this.topX " color="primary" @click="resetTop10"/>
       </div>
 
       <div class="row q-gutter-sm q-ma-sm justify-left">
@@ -86,10 +97,16 @@
           <div class="centered" v-show="selectionMode">{{ result.selected }}</div>
         </q-card>
       </div>
-      <q-dialog v-model="dialogOpen" @hide="this.userLogger.addAction({'name': 'CloseDialog', 'image': this.title})">
-        <q-card style="width: 1200px; max-width: 110vw">
-          <q-card-section class="row">
-            <div class="col-6">
+      <q-dialog v-model="dialogOpen" full-height @hide="this.userLogger.addAction({'name': 'CloseDialog', 'image': this.title})">
+        <q-card style="width: 1400px; max-width: 150vw">
+          <q-card-section >
+            <div class="row">
+              <q-space />
+                <q-btn icon="close" flat round v-close-popup />
+            </div>
+            <div class="row">
+              <div class="col-4">
+              <div class="row q-pa-xs text-h5 row justify-center"> "{{ title }}" by {{ artist }}</div>
               <q-img
                 class="dialog-img"
                 :src="dialogImage"
@@ -110,7 +127,6 @@
                   </q-tooltip></q-icon
                 >
               </q-img>
-
               <q-img
                 class="dialog-img"
                 :src="analysisImage"
@@ -130,26 +146,7 @@
                   </q-tooltip></q-icon
                 >
               </q-img>
-            </div>
-
-            <div class="col-6 q-pa-md">
-              <div class="row">
-                <div class="text-h2">{{ title }}</div>
-                <q-space />
-                <q-btn icon="close" flat round v-close-popup />
-              </div>
-              <div class="row q-pa-xs text-h5">By {{ artist }}</div>
-              <div class="row" style="height: 60%" v-show="stage==1">
-                <div class="text-overline">Pose</div>
-                <q-linear-progress :value="poseMatch" class="q-my-xs" />
-
-                <div class="text-overline">Color</div>
-                <q-linear-progress :value="colorMatch" class="q-my-xs" />
-
-                <div class="text-overline">Objects</div>
-                <q-linear-progress :value="objectMatch" class="q-my-xs" />
-
-                <div class="row q-py-lg">
+              <div class="row q-py-sm">
                   <div
                     class="col-4"
                     style="display: flex; align-items: center"
@@ -168,7 +165,49 @@
                     </div>
                   </div>
                 </div>
+            </div>
+
+            <div class="col-4 self-center q-pa-md">
+              <div class="text-h5 row justify-center">Relevance</div>
+              <div v-show="stage==1">
+                <div class="">
+                <div class="text-overline">Pose</div>
+                <q-linear-progress :value="poseMatch" class="q-my-xs" />
+
+                <div class="text-overline">Color</div>
+                <q-linear-progress :value="colorMatch" class="q-my-xs" />
+
+                <div class="text-overline">Objects</div>
+                <q-linear-progress :value="objectMatch" class="q-my-xs" />
+                </div>
               </div>
+            </div>
+            <div class="col-4">
+
+                <div class="text-h5 row justify-center">Your image</div>
+              <div class="row q-py-lg">
+                <q-img class="dialog-img" :src="'data:image/png;base64, ' + resultImage" height="100%"/>
+        
+                  <div
+                    class="col-4"
+                    style="display: flex; align-items: center"
+                    v-for="(color, index) in queryColors"
+                    v-bind:key="index"
+
+                  >
+                    <div
+                      class="box q-ma-sm"
+                      :style="{
+                        backgroundColor:
+                          'rgb(' + color[0] + ',' + color[1] + ',' + color[2] + ')',
+                      }"
+                    ></div>
+                    <div class="text-weight-bold" style="font-size: 10px">
+                      ({{ color[0] }}, {{ color[1] }}, {{ color[2] }})
+                    </div>
+                  </div>
+                </div>
+            </div>
             </div>
           </q-card-section>
         </q-card>
@@ -188,12 +227,12 @@
 
         <q-card-section class="q-pt-none">
           This is the first stage of the experiment. You will be shown a set of results that are similar to the image you selected.
-          You are asked to select the top {{this.topX}} images that you think are the most similar to your selected image.
+          You are asked to select the top {{ this.topX }} images that you think are the most similar to your selected image.
           <br><br>
           First, you can take a closer look by clicking on the images. If you want to select an image,
-          you can click on the toggle button "selection mode" on the top right corner and click on the image. If you made a mistake, you can reset your selection by clicking on the "Reset top {{this.topX}}" button.
+          you can click on the toggle button "selection mode" on the top right corner and click on the image. If you made a mistake, you can reset your selection by clicking on the "Reset top {{ this.topX }}" button.
           <br><br>
-          Finally you can submit your top {{this.topX}} images by clicking on the "Submit top {{this.topX}}" button.
+          Finally you can submit your top {{ this.topX }} images by clicking on the "Submit top {{ this.topX }}" button.
         </q-card-section>
 
         <q-card-actions align="right">
@@ -208,14 +247,14 @@
         </q-card-section>
 
         <q-card-section class="q-pt-none">
-          This is the second stage and last stage of the experiment. You will be asked again to select the top {{this.topX}} images that you think are the most similar to your selected image.
+          This is the second stage and last stage of the experiment. You will be asked again to select the top {{ this.topX }} images that you think are the most similar to your selected image.
           <br><br>
           This time, you can review the output of the system's analysis of your selected image (left bottom on your screen).
 
           When clicking on an image, you can click on the <q-icon size="md" color="purple" name="psychology_alt"/> icon on the top left corner of the image to reveal the details of the analysis.
           There's also 3 different bars that show the similarity of the image to your selected image in terms of pose, color and objects.
           <br><br>
-          You can again select the top {{this.topX}} images like in the first stage and submit them.
+          You can again select the top {{ this.topX }} images like in the first stage and submit them.
         </q-card-section>
 
         <q-card-actions align="right">
@@ -281,11 +320,14 @@ export default defineComponent({
     var userLogger = new UserLogger( analytics_server ,
         10, 20, 'data', {'user': userID,
             'page': 'AdvancedSettings',
-            'condition': 'No sliders + No advancedoptions'});
+            'condition': 'sliders+advancedoptions'});
 
     const isPrecalulated = localStorage.getItem("precalculated")
     const queryImage = localStorage.getItem("queryImage");
 
+    const poseWeight = localStorage.getItem("PoseWeight");
+    const colorWeight = localStorage.getItem("ColorWeight");
+    const objectWeight = localStorage.getItem("ObjectWeight");
 
     const result = history.state.results;
     const results = ref(result.results);
@@ -304,7 +346,7 @@ export default defineComponent({
     const showAnalysis = ref(false);
     const title = ref("Title");
     const artist = ref("Artist");
-    const stage = ref(0); // 0: before selecting top 10, 1: after selecting top 10
+    const stage = ref(1); // 0: before selecting top 10, 1: after selecting top 10
     const s0_top10 = ref([]);
     const s1_top10 = ref([]);
     const counter = ref(1);
@@ -345,6 +387,9 @@ export default defineComponent({
       infoStage0,
       infoStage1,
       selectedPalette,
+      colorWeight,
+      poseWeight,
+      objectWeight,
       topX,
     };
   },

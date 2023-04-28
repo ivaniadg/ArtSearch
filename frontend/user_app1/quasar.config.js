@@ -53,7 +53,7 @@ module.exports = configure(function (ctx) {
     build: {
       vueRouterMode: 'hash', // available values: 'hash', 'history'
       env: {
-        ANALYTICS_SERVER: 'http://picasso.experiments.cs.kuleuven.be:3893/analytics',
+        ANALYTICS_SERVER: 'http://localhost:3893/analytics',
         BACKEND_SERVER: 'http://picasso.experiments.cs.kuleuven.be:3785',
       },
 

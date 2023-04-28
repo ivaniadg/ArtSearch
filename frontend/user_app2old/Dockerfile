@@ -10,5 +10,5 @@ RUN quasar build
 # production stage
 FROM nginx:stable-alpine as production-stage
 COPY --from=build-stage /app/dist/spa /usr/share/nginx/html
-EXPOSE 3786
+EXPOSE 3891
 CMD ["nginx", "-g", "daemon off;"]

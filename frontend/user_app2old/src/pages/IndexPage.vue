@@ -8,7 +8,7 @@
       style="width: 500px"
       v-show="!isProcessing"
     >
-    <!-- <div style="text-align: center;vertical-align: middle;">Select a precalculated image (faster) or upload your own image. (slower)</div>
+    <div style="text-align: center;vertical-align: middle;">Select a precalculated image (faster) or upload your own image. (slower)</div>
     <q-scroll-area
       :thumb-style="thumbStyle"
       :bar-style="barStyle"
@@ -22,35 +22,21 @@
     </div>
 
 
-
-    </q-scroll-area> -->
-
-    <q-card>
-          <q-img src="artwork/unknown_unknown.jpg" :ratio="1" />
-    </q-card>
-
-
-      <!-- <q-file
+    </q-scroll-area>
+      <q-file
         filled
         v-model="picture"
         label="Click to upload image"
         hint="Image must be in .jpg or .png format"
         accept="image/*"
         @update:model-value="onInput"
-              /> -->
+              />
       <!-- display picture when uploaded -->
       <div v-if="picture">
         <q-img :src="queryImage" style="width: 100%" />
       </div>
 
       <q-list dense>
-        <Slider
-          v-for="(axis, index) in axes"
-          :key="index"
-          :axis="axis"
-          @update:value="updateValue"
-          @change="value=>userLogger.addAction({'name': 'Change weight', 'Axis': axis.name, 'Value': value })"
-        ></Slider>
       </q-list>
       <div class="center-button">
         <q-btn
@@ -60,13 +46,6 @@
           type="submit"
           color="primary"
         />
-        <!-- <q-btn
-          class="q-mx-lg"
-          label="Advanced Options"
-          size="sm"
-          color="secondary"
-          @click="onAdvancedSettings()"
-        /> -->
       </div>
     </q-form>
   </q-page>
@@ -92,12 +71,10 @@
 
 <script>
 import { defineComponent, ref } from "vue";
-import Slider from "../components/Slider.vue";
 import axios from "axios";
 import UserLogger from "../UserLogger";
 
 export default defineComponent({
-  components: { Slider },
   name: "IndexPage",
   setup() {
     // Get all image names from assets/artwork
@@ -117,7 +94,7 @@ export default defineComponent({
     var userLogger = new UserLogger(analytics_server,
         10, 20, 'data', {'userID': userID,
             'page': 'index',
-            'condition': 'sliders+advancedoptions'})
+            'condition': 'No sliders + No advancedoptions'})
     const axes = ref({
       pose: {
         name: "Pose",
@@ -180,17 +157,12 @@ export default defineComponent({
     },
     sumitPrecalculated(){
       const formData = new FormData();
-      formData.append("image_name", "unknown_unknown.jpg");
+      formData.append("image_name", this.artworks.find((artwork) => artwork.selected).name);
       formData.append("pose_weight", this.axes.pose.value);
       formData.append("color_weight", this.axes.color.value);
       formData.append("object_weight", this.axes.objects.value);
-
-      localStorage.setItem("PoseWeight", this.axes.pose.value);
-      localStorage.setItem("ColorWeight", this.axes.color.value);
-      localStorage.setItem("ObjectWeight", this.axes.objects.value);
-
       this.isProcessing = true;
-      localStorage.setItem("queryImage", "artwork/unknown_unknown.jpg");
+      localStorage.setItem("queryImage", "artwork/"+this.artworks.find((artwork) => artwork.selected).name);
       const backend_server = process.env.BACKEND_SERVER;
       // log submission
       this.userLogger.addAction({'name': 'Submit search', 'Pose weight': this.axes.pose.value, 'Color weight': this.axes.color.value, 'Object weight': this.axes.objects.value})
@@ -228,12 +200,8 @@ export default defineComponent({
       formData.append("image", this.picture);
       formData.append("pose_weight", this.axes.pose.value);
       formData.append("color_weight", this.axes.color.value);
+      // formData.append("style_weight", this.axes.style.value);
       formData.append("object_weight", this.axes.objects.value);
-
-      localStorage.setItem("PoseWeight", this.axes.pose.value);
-      localStorage.setItem("ColorWeight", this.axes.color.value);
-      localStorage.setItem("ObjectWeight", this.axes.objects.value);
-
       this.isProcessing = true;
       this.saveToLocalStorage();
       const backend_server = process.env.BACKEND_SERVER;
@@ -269,7 +237,11 @@ export default defineComponent({
         });
     },
     onSubmit() {
-      this.sumitPrecalculated();
+      if (this.custom) {
+        this.submitCustomImage();
+      } else {
+        this.sumitPrecalculated();
+      }
     },
     onAdvancedSettingsCustom(){
       const formData = new FormData();
