@@ -1,5 +1,27 @@
 <template>
   <q-page class="flex flex-center">
+    <q-dialog v-model="dialog" persistent @hide="onAdvancedSettings">
+      <q-card>
+        <q-card-section>
+          <div class="text-h6">Instructions</div>
+        </q-card-section>
+
+        <q-card-section class="q-pt-none">
+          Hi, first of all, thank you for participating in my user study. In this study, you are given a certain version of the application I've built for my thesis research.
+          <br>
+          <br>
+          The application is a search engine for finding similar artworks. you can define your definition of similarity by adjusting the sliders on this page and finetune some extra options. For example, if you want to find artworks that are similar in color, you can increase the color slider and decrease the other sliders.
+
+          <br>
+          <br>
+          To minimise bias in my research, I already selected a picture for you. I would like you to adjust some settings and change them to your liking, followed by clicking search. On the next page, you will be given a further set of instructions.
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn flat label="OK" color="primary" v-close-popup />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
     <q-spinner color="primary" size="3em" v-show="isProcessing" />
     <q-form
       @submit="onSubmit"
@@ -8,52 +30,13 @@
       style="width: 500px"
       v-show="!isProcessing"
     >
-    <div style="text-align: center;vertical-align: middle;">Select a precalculated image (faster) or upload your own image. (slower)</div>
-    <q-scroll-area
-      :thumb-style="thumbStyle"
-      :bar-style="barStyle"
-      style="height: 380px;"
-
-    >
-    <div class="row">
-      <q-card v-for="(artwork, index) in artworks" :key="index" class="col-5 q-ma-md clickable" id="artwork" @click="selectImage(artwork)">
-          <q-img :src="'artwork/' + artwork.name" :ratio="1" :style="[artwork.selected ? {'border': '4px solid rgb(224, 64, 55)'} : {'border': 'none'}]" />
-      </q-card>
-    </div>
-
-
-    </q-scroll-area>
-      <q-file
-        filled
-        v-model="picture"
-        label="Click to upload image"
-        hint="Image must be in .jpg or .png format"
-        accept="image/*"
-        @update:model-value="onInput"
-              />
-      <!-- display picture when uploaded -->
+    <q-card>
+          <q-img src="artwork/unknown_unknown.jpg" :ratio="1" />
+    </q-card>
       <div v-if="picture">
         <q-img :src="queryImage" style="width: 100%" />
       </div>
 
-      <q-list dense>
-        <Slider
-          v-for="(axis, index) in axes"
-          :key="index"
-          :axis="axis"
-          @update:value="updateValue"
-          @change="value=>userLogger.addAction({'name': 'Change weight', 'Axis': axis.name, 'Value': value })"
-        ></Slider>
-      </q-list>
-      <div class="center-button">
-        <q-btn
-          id="submit"
-          class="q-mx-lg"
-          label="Search"
-          type="submit"
-          color="primary"
-        />
-      </div>
     </q-form>
   </q-page>
 </template>
@@ -78,12 +61,10 @@
 
 <script>
 import { defineComponent, ref } from "vue";
-import Slider from "../components/Slider.vue";
 import axios from "axios";
 import UserLogger from "../UserLogger";
 
 export default defineComponent({
-  components: { Slider },
   name: "IndexPage",
   setup() {
     // Get all image names from assets/artwork
@@ -103,7 +84,7 @@ export default defineComponent({
     var userLogger = new UserLogger(analytics_server,
         10, 20, 'data', {'userID': userID,
             'page': 'index',
-            'condition': 'sliders + No advancedoptions'})
+            'condition': 'sliders+advancedoptions'})
     const axes = ref({
       pose: {
         name: "Pose",
@@ -118,8 +99,7 @@ export default defineComponent({
         value: 0.5,
       },
     });
-
-    return { axes, picture: ref(null), isProcessing: ref(false), queryImage: ref(null), userLogger, artworks, custom: ref(false) };
+    return { axes, picture: ref(null), isProcessing: ref(false), queryImage: ref(null), userLogger, artworks, custom: ref(false), dialog: ref(true) };
   },
   methods: {
     selectImage(artwork) {
@@ -166,7 +146,7 @@ export default defineComponent({
     },
     sumitPrecalculated(){
       const formData = new FormData();
-      formData.append("image_name", this.artworks.find((artwork) => artwork.selected).name);
+      formData.append("image_name", "unknown_unknown.jpg");
       formData.append("pose_weight", this.axes.pose.value);
       formData.append("color_weight", this.axes.color.value);
       formData.append("object_weight", this.axes.objects.value);
@@ -176,7 +156,7 @@ export default defineComponent({
       localStorage.setItem("ObjectWeight", this.axes.objects.value);
 
       this.isProcessing = true;
-      localStorage.setItem("queryImage", "artwork/"+this.artworks.find((artwork) => artwork.selected).name);
+      localStorage.setItem("queryImage", "artwork/unknown_unknown.jpg");
       const backend_server = process.env.BACKEND_SERVER;
       // log submission
       this.userLogger.addAction({'name': 'Submit search', 'Pose weight': this.axes.pose.value, 'Color weight': this.axes.color.value, 'Object weight': this.axes.objects.value})
@@ -255,11 +235,7 @@ export default defineComponent({
         });
     },
     onSubmit() {
-      if (this.custom) {
-        this.submitCustomImage();
-      } else {
-        this.sumitPrecalculated();
-      }
+      this.sumitPrecalculated();
     },
     onAdvancedSettingsCustom(){
       const formData = new FormData();
@@ -299,20 +275,15 @@ export default defineComponent({
         });
     },
     onAdvancedSettings() {
-      if (this.custom) {
-        this.onAdvancedSettingsCustom();
-      } else {
-        this.onAdvancedSettingsPrecalculated();
-      }
+      this.onAdvancedSettingsPrecalculated();
     },
     onAdvancedSettingsPrecalculated(){
-      const selected = this.artworks.find((artwork) => artwork.selected);
       const formData = new FormData();
       this.isProcessing = true;
       // log advanced settings
-      this.userLogger.addAction({'name': 'clicked on advanced settings', 'Image': selected.name})
-      localStorage.setItem("queryImage", "artwork/"+this.artworks.find((artwork) => artwork.selected).name);
-      formData.append("image_name", selected.name);
+      this.userLogger.addAction({'name': 'clicked on advanced settings', 'Image': "unknown_unknown.jpg"})
+      localStorage.setItem("queryImage",  "artwork/unknown_unknown.jpg");
+      formData.append("image_name", "unknown_unknown.jpg");
       const backend_server = process.env.BACKEND_SERVER;
       axios
         .post(

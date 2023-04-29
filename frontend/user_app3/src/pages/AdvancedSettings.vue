@@ -69,7 +69,7 @@ export default {
     var userLogger = new UserLogger(analytics_server,
         10, 20, 'data', {'userID': userID,
             'page': 'AdvancedSettings',
-            'condition': 'sliders + No advancedoptions'})
+            'condition': 'sliders+advancedoptions'})
 
     const analyzed_pose = history.state.advancedSettings.pose;
     const analyzed_colors = history.state.advancedSettings.colors;
@@ -112,7 +112,6 @@ export default {
       formData.append("color_weight", this.axes.color.value);
       formData.append("style_weight", this.axes.style.value);
       formData.append("object_weight", this.axes.objects.value);
-
       localStorage.setItem("PoseWeight", this.axes.pose.value);
       localStorage.setItem("ColorWeight", this.axes.color.value);
       localStorage.setItem("ObjectWeight", this.axes.objects.value);
@@ -161,13 +160,13 @@ export default {
       formData.append("color_weight", this.axes.color.value);
       formData.append("style_weight", this.axes.style.value);
       formData.append("object_weight", this.axes.objects.value);
-
       localStorage.setItem("PoseWeight", this.axes.pose.value);
       localStorage.setItem("ColorWeight", this.axes.color.value);
       localStorage.setItem("ObjectWeight", this.axes.objects.value);
 
       formData.append("poses", JSON.stringify(this.analyzed_pose.persons));
       formData.append("colors", JSON.stringify(this.analyzed_colors));
+      // formData.append("style", JSON.stringify(this.analyzed_style));
       formData.append("objects", JSON.stringify(this.analyzed_objects));
 
       this.userLogger.addAction({'name': 'search',

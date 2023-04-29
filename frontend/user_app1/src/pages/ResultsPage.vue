@@ -28,46 +28,6 @@
           @click="userLogger.addAction({ name: 'New search' })"
         />
       </div>
-      <q-separator inset />
-      <div>
-        <h4 class="q-my-lg text-center">analysis</h4>
-      <div class="q-pa-lg" style="width: 100%">
-        <q-img
-          :src="'data:image/png;base64, ' + resultImage"
-          class="clickable"
-          @click="enlargeImageDialog()"
-        >
-          <q-icon
-            class="absolute all-pointer-events"
-            size="50px"
-            name="zoom_in"
-            color="white"
-            style="top: 10px; left: 10px"
-          />
-        </q-img>
-      </div>
-      <div class="text-subtitle1 text-center">Extracted colors</div>
-      <div class="row q-mx-md">
-        <div
-          class="col-4"
-          style="display: flex; align-items: center"
-          v-for="(color, index) in queryColors"
-          v-bind:key="index"
-        >
-          <div
-            class="box q-ma-sm"
-            :style="{
-              backgroundColor:
-                'rgb(' + color[0] + ',' + color[1] + ',' + color[2] + ')',
-            }"
-          ></div>
-          <div class="text-weight-bold" style="font-size: 10px">
-            ({{ color[0] }}, {{ color[1] }}, {{ color[2] }})
-          </div>
-        </div>
-      </div>
-      </div>
-
     </div>
     <div class="col-9">
       <div class="row q-pa-lg">
@@ -97,34 +57,23 @@
           <div class="centered" v-show="selectionMode">{{ result.selected }}</div>
         </q-card>
       </div>
-      <q-dialog v-model="dialogOpen" full-height @hide="this.userLogger.addAction({'name': 'CloseDialog', 'image': this.title})">
-        <q-card style="width: 1400px; max-width: 150vw">
+
+
+      <q-dialog v-model="dialogOpen" @hide="this.userLogger.addAction({'name': 'CloseDialog', 'image': this.title})">
+        <q-card style="width: 1200px; max-width: 90vw">
           <q-card-section >
             <div class="row">
               <q-space />
                 <q-btn icon="close" flat round v-close-popup />
             </div>
             <div class="row">
-              <div class="col-4">
+              <div class="col-6 q-pa-lg">
               <div class="row q-pa-xs text-h5 row justify-center"> "{{ title }}" by {{ artist }}</div>
               <q-img
                 class="dialog-img"
                 :src="dialogImage"
                 width="100%"
-                v-show="!showAnalysis"
               >
-                <q-icon
-                  class="absolute all-pointer-events clickable"
-                  size="50px"
-                  name="psychology_alt"
-                  color="purple"
-                  style="top: 10px; left: 10px"
-                  @click="showDetails()"
-                >
-                  <q-tooltip>
-                    Click this icon to reveal the details of the analysis
-                  </q-tooltip></q-icon
-                >
               </q-img>
               <q-img
                 class="dialog-img"
@@ -145,66 +94,13 @@
                   </q-tooltip></q-icon
                 >
               </q-img>
-              <div class="row q-py-sm">
-                  <div
-                    class="col-4"
-                    style="display: flex; align-items: center"
-                    v-for="(color, index) in selectedPalette"
-                    v-bind:key="index"
-                  >
-                    <div
-                      class="box q-ma-sm"
-                      :style="{
-                        backgroundColor:
-                          'rgb(' + color[0] + ',' + color[1] + ',' + color[2] + ')',
-                      }"
-                    ></div>
-                    <div class="text-weight-bold" style="font-size: 10px">
-                      ({{ color[0] }}, {{ color[1] }}, {{ color[2] }})
-                    </div>
-                  </div>
-                </div>
+
             </div>
-
-            <div class="col-4 self-center q-pa-md">
-              <div class="text-h5 row justify-center">Relevance</div>
-              <div>
-                <div class="">
-                <div class="text-overline">Pose</div>
-                <q-linear-progress :value="poseMatch" class="q-my-xs" />
-
-                <div class="text-overline">Color</div>
-                <q-linear-progress :value="colorMatch" class="q-my-xs" />
-
-                <div class="text-overline">Objects</div>
-                <q-linear-progress :value="objectMatch" class="q-my-xs" />
-                </div>
-              </div>
-            </div>
-            <div class="col-4">
+            <div class="col-6">
 
                 <div class="text-h5 row justify-center">Your image</div>
               <div class="row q-py-lg">
-                <q-img class="dialog-img" :src="'data:image/png;base64, ' + resultImage" height="100%"/>
-
-                  <div
-                    class="col-4"
-                    style="display: flex; align-items: center"
-                    v-for="(color, index) in queryColors"
-                    v-bind:key="index"
-
-                  >
-                    <div
-                      class="box q-ma-sm"
-                      :style="{
-                        backgroundColor:
-                          'rgb(' + color[0] + ',' + color[1] + ',' + color[2] + ')',
-                      }"
-                    ></div>
-                    <div class="text-weight-bold" style="font-size: 10px">
-                      ({{ color[0] }}, {{ color[1] }}, {{ color[2] }})
-                    </div>
-                  </div>
+                <q-img class="dialog-img" :src="queryImage" height="100%"/>
                 </div>
             </div>
             </div>
@@ -331,7 +227,7 @@ export default defineComponent({
     var userLogger = new UserLogger( analytics_server ,
         10, 20, 'data', {'user': userID,
             'page': 'AdvancedSettings',
-            'condition': 'sliders+advancedoptions'});
+            'version': '1'});
 
     const queryImage = localStorage.getItem("queryImage");
 
@@ -421,7 +317,10 @@ export default defineComponent({
       const top10 = {
         secondsSpend: this.timer,
         userID: this.userID,
-        topX : this.topXList
+        topX : this.topXList,
+        poseWeight: this.poseWeight,
+        colorWeight: this.colorWeight,
+        objectWeight: this.objectWeight,
       }
       fetch(this.analytics_server+'/top10', {
             method: "POST",

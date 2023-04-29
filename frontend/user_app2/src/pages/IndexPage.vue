@@ -1,5 +1,27 @@
 <template>
   <q-page class="flex flex-center">
+    <q-dialog v-model="dialog" persistent>
+      <q-card>
+        <q-card-section>
+          <div class="text-h6">Instructions</div>
+        </q-card-section>
+
+        <q-card-section class="q-pt-none">
+          Hi, first of all, thank you for participating in my user study. In this study, you are given a certain version of the application I've built for my thesis research.
+          <br>
+          <br>
+          The application is a search engine for finding similar artworks. you can define your definition of similarity by adjusting the sliders on this page, and then click on search to see the results. For example, if you want to find artworks that are similar in color, you can increase the color slider and decrease the other sliders.
+
+          <br>
+          <br>
+          To minimise bias in my research, I already selected a picture for you. I would like you to use the sliders and change them to your liking, followed by clicking search. On the next page, you will be given a further set of instructions.
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn flat label="OK" color="primary" v-close-popup />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
     <q-spinner color="primary" size="3em" v-show="isProcessing" />
     <q-form
       @submit="onSubmit"
@@ -117,7 +139,7 @@ export default defineComponent({
     var userLogger = new UserLogger(analytics_server,
         10, 20, 'data', {'userID': userID,
             'page': 'index',
-            'condition': 'sliders+advancedoptions'})
+            'version': '2'})
     const axes = ref({
       pose: {
         name: "Pose",
@@ -133,7 +155,7 @@ export default defineComponent({
       },
     });
 
-    return { axes, picture: ref(null), isProcessing: ref(false), queryImage: ref(null), userLogger, artworks, custom: ref(false) };
+    return { axes, picture: ref(null), isProcessing: ref(false), queryImage: ref(null), userLogger, artworks, custom: ref(false), dialog: ref(true) };
   },
   methods: {
     selectImage(artwork) {

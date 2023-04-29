@@ -28,54 +28,14 @@
           @click="userLogger.addAction({ name: 'New search' })"
         />
       </div>
-      <q-separator inset />
-      <div v-show="stage==1">
-        <h4 class="q-my-lg text-center">analysis</h4>
-      <div class="q-pa-lg" style="width: 100%">
-        <q-img
-          :src="'data:image/png;base64, ' + resultImage"
-          class="clickable"
-          @click="enlargeImageDialog()"
-        >
-          <q-icon
-            class="absolute all-pointer-events"
-            size="50px"
-            name="zoom_in"
-            color="white"
-            style="top: 10px; left: 10px"
-          />
-        </q-img>
-      </div>
-      <div class="text-subtitle1 text-center">Extracted colors</div>
-      <div class="row q-mx-md">
-        <div
-          class="col-4"
-          style="display: flex; align-items: center"
-          v-for="(color, index) in queryColors"
-          v-bind:key="index"
-        >
-          <div
-            class="box q-ma-sm"
-            :style="{
-              backgroundColor:
-                'rgb(' + color[0] + ',' + color[1] + ',' + color[2] + ')',
-            }"
-          ></div>
-          <div class="text-weight-bold" style="font-size: 10px">
-            ({{ color[0] }}, {{ color[1] }}, {{ color[2] }})
-          </div>
-        </div>
-      </div>
-      </div>
-
     </div>
     <div class="col-9">
       <div class="row q-pa-lg">
         <div class="col-md-3"><h2 class="q-my-none">results</h2> </div>
         <div class="col-md-3 q-pa-md"><q-btn round color="primary" icon="info" @click="showInfo"/></div>
         <q-toggle v-model="selectionMode" label="selection mode" v-show="!sent_top10"/>
-        <q-btn class="q-ma-md" v-if="selectionMode" :label="'Submit top ' + this.topX" color="primary" @click="submitTop10" :disabled="!complete"/>
-        <q-btn class="q-ma-md" v-if="selectionMode" :label="'Submit top ' + this.topX " color="primary" @click="resetTop10"/>
+        <q-btn class="q-ma-md" v-if="selectionMode" :label="'Submit top ' + this.topX " color="primary" @click="submitTop10" :disabled="!complete"/>
+        <q-btn class="q-ma-md" v-if="selectionMode" :label="'Reset top ' +  this.topX " color="primary" @click="resetTop10"/>
       </div>
 
       <div class="row q-gutter-sm q-ma-sm justify-left">
@@ -97,31 +57,24 @@
           <div class="centered" v-show="selectionMode">{{ result.selected }}</div>
         </q-card>
       </div>
+
+
       <q-dialog v-model="dialogOpen" @hide="this.userLogger.addAction({'name': 'CloseDialog', 'image': this.title})">
-        <q-card style="width: 1200px; max-width: 110vw">
-          <q-card-section class="row">
-            <div class="col-6">
+        <q-card style="width: 1200px; max-width: 90vw">
+          <q-card-section >
+            <div class="row">
+              <q-space />
+                <q-btn icon="close" flat round v-close-popup />
+            </div>
+            <div class="row">
+              <div class="col-6 q-pa-lg">
+              <div class="row q-pa-xs text-h5 row justify-center"> "{{ title }}" by {{ artist }}</div>
               <q-img
                 class="dialog-img"
                 :src="dialogImage"
                 width="100%"
-                v-show="!showAnalysis"
               >
-                <q-icon
-                  class="absolute all-pointer-events clickable"
-                  size="50px"
-                  name="psychology_alt"
-                  color="purple"
-                  v-show="stage == 1"
-                  style="top: 10px; left: 10px"
-                  @click="showDetails()"
-                >
-                  <q-tooltip>
-                    Click this icon to reveal the details of the analysis
-                  </q-tooltip></q-icon
-                >
               </q-img>
-
               <q-img
                 class="dialog-img"
                 :src="analysisImage"
@@ -141,45 +94,15 @@
                   </q-tooltip></q-icon
                 >
               </q-img>
+
             </div>
+            <div class="col-6">
 
-            <div class="col-6 q-pa-md">
-              <div class="row">
-                <div class="text-h2">{{ title }}</div>
-                <q-space />
-                <q-btn icon="close" flat round v-close-popup />
-              </div>
-              <div class="row q-pa-xs text-h5">By {{ artist }}</div>
-              <div class="row" style="height: 60%" v-show="stage==1">
-                <div class="text-overline">Pose</div>
-                <q-linear-progress :value="poseMatch" class="q-my-xs" />
-
-                <div class="text-overline">Color</div>
-                <q-linear-progress :value="colorMatch" class="q-my-xs" />
-
-                <div class="text-overline">Objects</div>
-                <q-linear-progress :value="objectMatch" class="q-my-xs" />
-
-                <div class="row q-py-lg">
-                  <div
-                    class="col-4"
-                    style="display: flex; align-items: center"
-                    v-for="(color, index) in selectedPalette"
-                    v-bind:key="index"
-                  >
-                    <div
-                      class="box q-ma-sm"
-                      :style="{
-                        backgroundColor:
-                          'rgb(' + color[0] + ',' + color[1] + ',' + color[2] + ')',
-                      }"
-                    ></div>
-                    <div class="text-weight-bold" style="font-size: 10px">
-                      ({{ color[0] }}, {{ color[1] }}, {{ color[2] }})
-                    </div>
-                  </div>
+                <div class="text-h5 row justify-center">Your image</div>
+              <div class="row q-py-lg">
+                <q-img class="dialog-img" :src="queryImage" height="100%"/>
                 </div>
-              </div>
+            </div>
             </div>
           </q-card-section>
         </q-card>
@@ -191,20 +114,21 @@
         style="width: 70rem"
       />
     </q-dialog>
-    <q-dialog v-model="infoStage0">
+
+    <q-dialog v-model="info" persistent>
       <q-card>
         <q-card-section>
-          <div class="text-h6">First stage</div>
+          <div class="text-h6">Instructions</div>
         </q-card-section>
 
         <q-card-section class="q-pt-none">
-          This is the first stage of the experiment. You will be shown a set of results that are similar to the image you selected.
-          You are asked to select the top {{this.topX}} images that you think are the most similar to your selected image.
+          You've now landed on the result page, here you will be asked to select your top {{ this.topX }} images that you think are the most similar to the query image considering your weights.
           <br><br>
-          First, you can take a closer look by clicking on the images. If you want to select an image,
-          you can click on the toggle button "selection mode" on the top right corner and click on the image. If you made a mistake, you can reset your selection by clicking on the "Reset top {{this.topX}}" button.
+          You can click on an image to enlarge it to inspect it more closely. To select images you can click on the togglebutton "selectionmode" in the top right corner of this page and click on an image to select it (in order).
           <br><br>
-          Finally you can submit your top {{this.topX}} images by clicking on the "Submit top {{this.topX}}" button.
+          When you're done selecting your top {{ this.topX }}, you can click on the "submit top {{ this.topX }}" button in the top right corner.
+          <br><br>
+          If there are duplicate images in the result set, you just pick the first one you see.
         </q-card-section>
 
         <q-card-actions align="right">
@@ -212,21 +136,32 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
-    <q-dialog v-model="infoStage1">
+
+    <q-dialog v-model="sent_top10" persistent>
       <q-card>
         <q-card-section>
-          <div class="text-h6">Second stage</div>
+          <div class="text-h6">Instructions</div>
         </q-card-section>
 
         <q-card-section class="q-pt-none">
-          This is the second stage and last stage of the experiment. You will be asked again to select the top {{this.topX}} images that you think are the most similar to your selected image.
-          <br><br>
-          This time, you can review the output of the system's analysis of your selected image (left bottom on your screen).
+         You've now completed the task, if you want to do one more search with different weights (which is greatly appreciated), you can click here: <br>
+         <q-btn
+          color="primary"
+          class="q-mb-lg"
+          label="New search"
+          :to="{ name: 'Index' }"
+          @click="userLogger.addAction({ name: 'New search' })"
+         /><br>
 
-          When clicking on an image, you can click on the <q-icon size="md" color="purple" name="psychology_alt"/> icon on the top left corner of the image to reveal the details of the analysis.
-          There's also 3 different bars that show the similarity of the image to your selected image in terms of pose, color and objects.
-          <br><br>
-          You can again select the top {{this.topX}} images like in the first stage and submit them.
+          If you want to proceed to the final questionnaire, you can click here (copy your userID: <b>{{ this.userID }}</b> ): <br>
+          <q-btn
+          color="primary"
+          class="q-mb-lg"
+          label="Questionnaire"
+          href="https://forms.office.com/Pages/ResponsePage.aspx?id=m1hzOUCetU6ADrC2OD0WIUyTP6SV9olHtQpLK8rv5JpUQzUwM1FSS1U1RVVJQUlNWkc1NUtTMkIwVS4u"
+          @click="userLogger.addAction({ name: 'To questionnaire' })"
+         />
+
         </q-card-section>
 
         <q-card-actions align="right">
@@ -292,15 +227,13 @@ export default defineComponent({
     var userLogger = new UserLogger( analytics_server ,
         10, 20, 'data', {'user': userID,
             'page': 'AdvancedSettings',
-            'condition': 'sliders + No advancedoptions'});
+            'version': '1'});
 
-    const isPrecalulated = localStorage.getItem("precalculated")
     const queryImage = localStorage.getItem("queryImage");
 
     const poseWeight = localStorage.getItem("PoseWeight");
     const colorWeight = localStorage.getItem("ColorWeight");
     const objectWeight = localStorage.getItem("ObjectWeight");
-
 
     const result = history.state.results;
     const results = ref(result.results);
@@ -319,15 +252,12 @@ export default defineComponent({
     const showAnalysis = ref(false);
     const title = ref("Title");
     const artist = ref("Artist");
-    const stage = ref(0); // 0: before selecting top 10, 1: after selecting top 10
-    const s0_top10 = ref([]);
-    const s1_top10 = ref([]);
+    const topXList = ref([]);
     const counter = ref(1);
     const selectionMode = ref(false);
     const complete = ref(false);
     const sent_top10 = ref(false);
-    const infoStage0 = ref(true);
-    const infoStage1 = ref(false);
+    const info = ref(true);
     const selectedPalette = ref([]);
     const topX = 6;
     return {
@@ -348,61 +278,49 @@ export default defineComponent({
       title,
       artist,
       userLogger,
-      stage,
-      s0_top10,
-      s1_top10,
+      topXList,
       selectionMode,
       counter,
       complete,
       sent_top10,
       userID,
       analytics_server,
-      infoStage0,
-      infoStage1,
+      info,
       selectedPalette,
-      objectWeight,
       colorWeight,
       poseWeight,
+      objectWeight,
       topX,
+      timer: ref(0),
+      timerInterval: null,
     };
+  },
+  mounted(){
+    this.timerInterval = setInterval(() => {
+      this.timer++;
+    }, 1000)
   },
   methods: {
     showInfo(){
-      if (this.stage==0) {
-        this.infoStage0 = true;
-      } if (this.stage==1) {
-        this.infoStage1 = true;
-      }
+        this.info= true;
     },
     submitTop10(){
       // SUBMIT TOP 10 together with the user's data
-      if (this.stage==0 && this.s0_top10.length == this.topX) {
-        this.userLogger.addAction({'name': 'Submit Top 10', 'stage': 0})
-        this.complete = false;
-        this.stage = 1;
-        this.selectionMode = false;
-        this.counter = 1
-        this.results.forEach((result) => {
-        result["selected"] = "";
-        this.infoStage1 = true;
-        });
-      }
-      if (this.stage==1 && this.s1_top10.length == this.topX) {
-        this.userLogger.addAction({'name': 'Submit Top 10', 'stage': 1})
+      if (this.topXList.length == this.topX) {
+        this.userLogger.addAction({'name': 'Submit Top 10'})
         this.complete = false;
         this.selectionMode = false;
         this.send_top10()
-        this.counter = 1
-        this.results.forEach((result) => {
-        result["selected"] = "";
-        });
       }
     },
     send_top10(){
       const top10 = {
+        secondsSpend: this.timer,
         userID: this.userID,
-        s0 : this.s0_top10,
-        s1 : this.s1_top10
+        topX : this.topXList,
+        poseWeight: this.poseWeight,
+        colorWeight: this.colorWeight,
+        objectWeight: this.objectWeight,
       }
       fetch(this.analytics_server+'/top10', {
             method: "POST",
@@ -414,7 +332,6 @@ export default defineComponent({
         })
             .then(response => {
                 if (response.status == 200) {
-                    console.log("")
                     this.sent_top10 = true;
                 }
             })
@@ -424,33 +341,19 @@ export default defineComponent({
     },
     resetTop10(){
       this.counter = 1;
-      if (this.stage == 0) {
-        this.userLogger.addAction({'name': 'resetTop10', 'stage': 0})
-        this.s0_top10 = [];
-      }
-      if (this.stage == 1) {
-        this.userLogger.addAction({'name': 'resetTop10', 'stage': 1})
-        this.s1_top10 = [];
-      }
+
+      this.userLogger.addAction({'name': 'resetTopX'})
+      this.topXList = [];
+
       this.results.forEach((result) => {
         result["selected"] = "";
       });
     },
     handleClick(result) {
       if (this.selectionMode) {
-        if (this.stage == 0 && !this.s0_top10.some(obj => obj.image_name === result.image_name) && this.counter <= this.topX) {
-          this.userLogger.addAction({'name': 'addToTop10', 'stage': 0, 'image': result.image_name, 'rank': this.counter})
-          this.s0_top10.push({"image_name":result.image_name, "personal_rank": this.counter, "real_rank": this.results.indexOf(result)+1});
-          console.log("select")
-          result["selected"] = this.counter;
-          this.counter++;
-          if (this.counter == this.topX+1) {
-            this.complete = true;
-          }
-        }
-        if (this.stage == 1 &&  !this.s1_top10.some(obj => obj.image_name === result.image_name) && this.counter <= this.topX) {
-          this.userLogger.addAction({'name': 'addToTop10', 'stage': 1, 'image': result.image_name, 'rank': this.counter})
-          this.s1_top10.push({"image_name":result.image_name, "personal_rank": this.counter, "real_rank": this.results.indexOf(result)+1});
+        if (!this.topXList.some(obj => obj.image_name === result.image_name) && this.counter <= this.topX) {
+          this.userLogger.addAction({'name': 'addToTop10', 'image': result.image_name, 'rank': this.counter})
+          this.topXList.push({"image_name":result.image_name, "personal_rank": this.counter, "real_rank": this.results.indexOf(result)+1});
           result["selected"] = this.counter;
           this.counter++;
           if (this.counter == this.topX+1) {

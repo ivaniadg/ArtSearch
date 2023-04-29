@@ -1,7 +1,6 @@
 <template>
-    User ID: {{userID}} <br>
-    Version: {{appVersion}}
-
+     User ID: {{userID}} <br>
+     Version: {{appVersion}}
   <router-view />
 </template>
 
@@ -16,7 +15,7 @@ export default defineComponent({
         console.log("user id does not exist, creating new one" + localStorage.getItem("userID"))
     }
     const userID = localStorage.getItem("userID");
-    return {userID,appVersion: "2"}
+    return {userID, appVersion: "1"}
   }
 })
 </script>

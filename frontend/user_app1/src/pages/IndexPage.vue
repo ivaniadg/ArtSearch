@@ -139,7 +139,7 @@ export default defineComponent({
     var userLogger = new UserLogger(analytics_server,
         10, 20, 'data', {'userID': userID,
             'page': 'index',
-            'condition': 'sliders+advancedoptions'})
+            'version': '1'})
     const axes = ref({
       pose: {
         name: "Pose",
