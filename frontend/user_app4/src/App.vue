@@ -15,7 +15,7 @@ export default defineComponent({
         console.log("user id does not exist, creating new one" + localStorage.getItem("userID"))
     }
     const userID = localStorage.getItem("userID");
-    return {userID, appVersion: "1"}
+    return {userID, appVersion: "4"}
   }
 })
 </script>
