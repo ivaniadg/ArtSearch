@@ -33,19 +33,17 @@ def process_actions(self, data):
         page = action['page']
         version = action['version']
         timestamp = action['timestamp']
+        actionname = action['name']
 
-        # extract the remaining fields from the action
-        action.pop('userID', None)
-        action.pop('page', None)
-        action.pop('version', None)
-        action.pop('timestamp', None)
 
 
         raw = Actions(userid=userID,
                       page=page,
                       version=version,
-                      actions=action,
-                      tstamp=timestamp)
+                      actionname=actionname,
+                      tstamp=timestamp,
+                      json=action
+                      )
 
         db.session.add(raw)
         db.session.commit()

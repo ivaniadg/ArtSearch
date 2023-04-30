@@ -3,8 +3,10 @@ CREATE TABLE actions (
     userid VARCHAR NOT NULL,
     page VARCHAR NOT NULL,
     version INT NOT NULL,
+    actionname VARCHAR NOT NULL,
     tstamp TIMESTAMP NOT NULL,
-    actions JSONB NOT NULL
+    json JSONB NOT NULL
+
 );
 
 CREATE TABLE top10 (

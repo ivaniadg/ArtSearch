@@ -8,8 +8,9 @@ class Actions(db.Model):
     userid = Column(VARCHAR(255))
     page = Column(String)
     version = Column(Integer)
-    actions = Column(JSON)
+    actionname = Column(VARCHAR(255))
     tstamp = Column(TIMESTAMP)
+    json = Column(JSON)
 
 class Top10(db.Model):
     __tablename__ = 'top10'
