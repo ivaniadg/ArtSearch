@@ -14,7 +14,7 @@ CREATE TABLE top10 (
   poseweight DECIMAL NOT NULL,
   colorweight DECIMAL NOT NULL,
   objectweight DECIMAL NOT NULL,
-  topX JSON NOT NULL,
+  topx JSON NOT NULL,
   pak DECIMAL NOT NULL,
   src DECIMAL NOT NULL,
   mse DECIMAL NOT NULL,

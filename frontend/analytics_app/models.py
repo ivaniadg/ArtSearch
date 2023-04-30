@@ -20,7 +20,7 @@ class Top10(db.Model):
     poseweight = Column(Float)
     colorweight = Column(Float)
     objectweight = Column(Float)
-    topX = Column(JSON)
+    topx = Column(JSON)
     pak = Column(Float)
     src = Column(Float)
     mse = Column(Float)

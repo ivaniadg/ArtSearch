@@ -81,7 +81,7 @@ def process_top10(self, data):
                   poseweight=poseWeight,
                   colorweight=colorWeight,
                   objectweight=objectWeight,
-                  topX=topX,
+                  topx=topX,
                   pak=pak,
                   src=src,
                   mse=mserror,
