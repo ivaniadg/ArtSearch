@@ -35,7 +35,7 @@ services:
     links:
       - analytics_app
     ports:
-      - "3893:80"
+      - "3896:80"
   analytics_app:
     image: analytics_app:lastest
     build:

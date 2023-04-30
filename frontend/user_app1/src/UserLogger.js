@@ -78,6 +78,7 @@ class UserLogger {
     }
 
     sendActions(actions) {
+      console.log(actions)
         fetch(this.server, {
             method: "POST",
             headers: {

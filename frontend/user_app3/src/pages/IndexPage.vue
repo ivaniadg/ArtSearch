@@ -165,7 +165,7 @@ export default defineComponent({
         .then(response => {
           // handle successful response
           // log success
-          this.userLogger.addAction({'name': 'Search success'})
+          // this.userLogger.addAction({'name': 'Search success'})
           this.isProcessing = false;
           //redirect to results page
           this.$router.push({
@@ -186,7 +186,7 @@ export default defineComponent({
             timeout: 2000,
           });
           // log error
-          this.userLogger.addAction({'name': 'Search error', 'Error': error})
+          // this.userLogger.addAction({'name': 'Search error', 'Error': error})
         });
     },
     submitCustomImage(){
@@ -210,7 +210,7 @@ export default defineComponent({
         .then(response => {
           // handle successful response
           // log success
-          this.userLogger.addAction({'name': 'Search success'})
+          // this.userLogger.addAction({'name': 'Search success'})
           this.isProcessing = false;
           //redirect to results page
           this.$router.push({
@@ -231,7 +231,7 @@ export default defineComponent({
             timeout: 2000,
           });
           // log error
-          this.userLogger.addAction({'name': 'Search error', 'Error': error})
+          // this.userLogger.addAction({'name': 'Search error', 'Error': error})
         });
     },
     onSubmit() {

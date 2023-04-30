@@ -17,7 +17,7 @@ task_broker = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
 task_broker.conf.update(app.config)
 CORS(app)
 
-from models import ActionRAW, Top10
+from models import Actions, Top10
 
 @app.route("/analytics", methods=["POST"])
 def save_analytics():
@@ -28,15 +28,27 @@ def save_analytics():
 
 @task_broker.task(bind=True, name='process_actions')
 def process_actions(self, data):
-    interest = []
     for action in data:
-        # First: save the raw json.
-        raw = ActionRAW(data=action)
+        userID = action['userID']
+        page = action['page']
+        version = action['version']
+        timestamp = action['timestamp']
+
+        # extract the remaining fields from the action
+        action.pop('userID', None)
+        action.pop('page', None)
+        action.pop('version', None)
+        action.pop('timestamp', None)
+
+
+        raw = Actions(userid=userID,
+                      page=page,
+                      version=version,
+                      actions=action,
+                      tstamp=timestamp)
+
         db.session.add(raw)
         db.session.commit()
-
-    db.session.add_all(interest)
-    db.session.commit()
 
 
 # endpoint that takes top10 data and saves it to the database
@@ -49,30 +61,31 @@ def save_top10():
 
 @task_broker.task(bind=True, name='process_top10')
 def process_top10(self, data):
-
-    print("incomming data: " + str(data))
-    S0 = data['s0']
-    S1 = data['s1']
+    topX = data['topX']
+    poseWeight = data['poseWeight']
+    colorWeight = data['colorWeight']
+    objectWeight = data['objectWeight']
+    version = data['version']
+    userID = data['userID']
+    duration = data['secondsSpend']
 
     # Compute precision@k
-    s0_system_precision_at_k = precision_at_k(S0)
-    s1_system_precision_at_k = precision_at_k(S1)
+    pak = precision_at_k(topX, k=6)
 
-    s0_spearman = spearman_correlation(S0)
-    s1_spearman = spearman_correlation(S1)
+    src = spearman_correlation(topX)
 
-    s0_seres = mse(S0)
-    s1_mseres = mse(S1)
+    mserror = mse(topX)
 
-    top10 = Top10(userid=data['userID'],
-                  s0_top10=S0,
-                  s1_top10=S1,
-                  s0_pak=s0_system_precision_at_k,
-                  s1_pak=s1_system_precision_at_k,
-                  s0_src=s0_spearman,
-                  s1_src=s1_spearman,
-                  s0_mse=s0_seres,
-                  s1_mse=s1_mseres,
+    top10 = Top10(userid=userID,
+                    topX=topX,
+                    pak=pak,
+                    src=src,
+                    mse=mserror,
+                    duration=duration,
+                    objectWeight=objectWeight,
+                    colorWeight=colorWeight,
+                    poseWeight=poseWeight,
+                    version=version
                   )
 
     db.session.add(top10)
