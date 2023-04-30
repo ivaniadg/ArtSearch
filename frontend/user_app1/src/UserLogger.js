@@ -73,7 +73,9 @@ class UserLogger {
     }
 
     addTimeStamp(action) {
-        action['timestamp'] = Date.now()
+        // YYYY-MM-DD HH:MI:SS
+        let timestamp = new Date().toISOString();
+        action['timestamp'] = timestamp
         return action;
     }
 
