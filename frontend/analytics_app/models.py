@@ -16,13 +16,12 @@ class Top10(db.Model):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     userid = Column(VARCHAR(255))
+    version = Column(Integer)
+    poseweight = Column(Float)
+    colorweight = Column(Float)
+    objectweight = Column(Float)
     topX = Column(JSON)
     pak = Column(Float)
     src = Column(Float)
     mse = Column(Float)
     duration = Column(Integer)
-    objectWeight = Column(Float)
-    colorWeight = Column(Float)
-    poweWeight = Column(Float)
-    version = Column(Integer)
-

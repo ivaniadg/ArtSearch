@@ -77,15 +77,15 @@ def process_top10(self, data):
     mserror = mse(topX)
 
     top10 = Top10(userid=userID,
-                    topX=topX,
-                    pak=pak,
-                    src=src,
-                    mse=mserror,
-                    duration=duration,
-                    objectWeight=objectWeight,
-                    colorWeight=colorWeight,
-                    poseWeight=poseWeight,
-                    version=version
+                  version=version,
+                  poseweight=poseWeight,
+                  colorweight=colorWeight,
+                  objectweight=objectWeight,
+                  topX=topX,
+                  pak=pak,
+                  src=src,
+                  mse=mserror,
+                  duration=duration
                   )
 
     db.session.add(top10)
