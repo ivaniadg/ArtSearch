@@ -215,7 +215,7 @@
         <q-card-section class="q-pt-none">
           You've now landed on the result page, here you will be asked to select your top {{ this.topX }} images that you think are the most similar to the query image considering your weights.
           <br><br>
-          You can click on an image to enlarge it and view why the system thinks that this image is similar you can also compare the images yourself by clicking on the togglebutton . To select images you can click on the togglebutton "selectionmode" in the top right corner of this page and click on an image to select it (in order).
+          You can click on an image to enlarge it and view why the system thinks that this image is similar you can also compare the images yourself by clicking on the togglebutton. To select images you can click on the togglebutton "selectionmode" in the top right corner of this page and click on an image to select it (in order).
           <br><br>
           When you're done selecting your top {{ this.topX }}, you can click on the "submit top {{ this.topX }}" button in the top right corner.
           <br><br>

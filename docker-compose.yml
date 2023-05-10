@@ -28,7 +28,7 @@ services:
     ports:
       - "3892:80"
   user_app4:
-    image: user_app3:lastest
+    image: user_app4:lastest
     build:
       context: ./frontend/user_app4
       dockerfile: Dockerfile
