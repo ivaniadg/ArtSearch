@@ -225,7 +225,7 @@ export default defineComponent({
     const analytics_server = process.env.ANALYTICS_SERVER;
 
     var userLogger = new UserLogger( analytics_server ,
-        10, 20, 'data', {'user': userID,
+        10, 20, 'data', {'userID': userID,
             'page': 'AdvancedSettings',
             'version': '3'});
 
