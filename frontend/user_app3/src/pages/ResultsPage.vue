@@ -321,7 +321,7 @@ export default defineComponent({
         poseWeight: this.poseWeight,
         colorWeight: this.colorWeight,
         objectWeight: this.objectWeight,
-        version: '4'
+        version: '3'
       }
       fetch(this.analytics_server+'/top10', {
             method: "POST",
