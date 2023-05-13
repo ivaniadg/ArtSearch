@@ -226,7 +226,7 @@ export default defineComponent({
 
     var userLogger = new UserLogger( analytics_server ,
         10, 20, 'data', {'userID': userID,
-            'page': 'AdvancedSettings',
+            'page': 'ResultsPage',
             'version': '3'});
 
     const queryImage = localStorage.getItem("queryImage");
