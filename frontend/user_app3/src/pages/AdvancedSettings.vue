@@ -69,7 +69,7 @@ export default {
     var userLogger = new UserLogger(analytics_server,
         10, 20, 'data', {'userID': userID,
             'page': 'AdvancedSettings',
-            'condition': '3'})
+            'version': '3'})
 
     const analyzed_pose = history.state.advancedSettings.pose;
     const analyzed_colors = history.state.advancedSettings.colors;
@@ -118,7 +118,6 @@ export default {
 
       formData.append("poses", JSON.stringify(this.analyzed_pose.persons));
       formData.append("colors", JSON.stringify(this.analyzed_colors));
-      // formData.append("style", JSON.stringify(this.analyzed_style));
       formData.append("objects", JSON.stringify(this.analyzed_objects));
 
       this.userLogger.addAction({'name': 'search',
