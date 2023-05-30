@@ -3,3 +3,4 @@
 Frontend/public/assets/
 frontend/analytics_app/__pycache__/
 frontend/analytics_app/venv/
+.Rproj.user
