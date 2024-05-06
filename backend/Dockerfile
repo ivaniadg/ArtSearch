@@ -12,6 +12,7 @@ DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
     g++ \
     wget \
     make \
+    hdf5-tools \
     libprotobuf-dev  \
     protobuf-compiler \
     libopencv-dev \
@@ -40,21 +41,31 @@ ENV PATH="/opt/cmake-3.16.0-Linux-x86_64/bin:${PATH}"
 #get openpose
 WORKDIR /openpose
 RUN git clone https://github.com/CMU-Perceptual-Computing-Lab/openpose.git .
-RUN git submodule init && git submodule update
+RUN git checkout 2034f9c07526b885c16ba94eec4a4bd6cc8787c3
+
+COPY models/ /openpose/models
+
 #build it
 WORKDIR /openpose/build
-RUN cmake -DBUILD_PYTHON=ON -DGPU_MODE=CPU_ONLY -DUSE_CUDNN=OFF .. && make -j `nproc`
-WORKDIR /openpose
+RUN cmake -DBUILD_PYTHON=ON -DGPU_MODE:String=CPU_ONLY -DUSE_CUDNN=OFF  \
+          -DDOWNLOAD_BODY_25_MODEL:Bool=OFF \
+          -DDOWNLOAD_BODY_MPI_MODEL:Bool=OFF \
+          -DDOWNLOAD_BODY_COCO_MODEL:Bool=OFF \
+          -DDOWNLOAD_FACE_MODEL:Bool=OFF \
+          -DDOWNLOAD_HAND_MODEL:Bool=OFF \
+          ..
+RUN make -j `nproc`
+# WORKDIR /openpose
 
 #install openpose python library
 RUN cd  /openpose/build/python/openpose && make install
 
 # Copy the Python module to the Python package directory
-RUN cd /openpose/build/python/openpose && \
-    cp ./pyopenpose.cp* /usr/local/lib/python3.8/dist-packages && \
-    cd /usr/local/lib/python3.8/dist-packages && \
-    ln -s pyopenpose.cp* pyopenpose && \
-    export LD_LIBRARY_PATH=/openpose/build/python/openpose
+# RUN cd /openpose/build/python/openpose && \
+#    cp ./pyopenpose.cp* /usr/local/lib/python3.8/dist-packages && \
+#    cd /usr/local/lib/python3.8/dist-packages && \
+#    ln -s pyopenpose.cp* pyopenpose && \
+#    export LD_LIBRARY_PATH=/openpose/build/python/openpose
 
 # copy local files \
 WORKDIR /app
