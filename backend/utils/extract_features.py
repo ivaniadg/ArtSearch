@@ -5,6 +5,7 @@ import os
 import cv2
 from colorthief import ColorThief
 import pickle
+from tqdm import tqdm
 
 
 def extract_features(folder):
@@ -17,19 +18,20 @@ def extract_features(folder):
     objects_dict = {}
     poses_dict = {}
 
-    for i, image_name in enumerate(os.listdir(folder)):
+    for i, image_name in enumerate(tqdm(sorted(os.listdir(folder)))):
         if image_name.endswith(".png") or image_name.endswith(".jpg") or image_name.endswith(".jpeg"):
             # print progress
-            print("Processing image " + str(i) + " of " + str(len(os.listdir(folder))))
-            if i == 5:
+            # print("Processing image " + str(i) + " of " + str(len(os.listdir(folder))))
+            if i == 3:
                 break
-            image = cv2.imread(folder + image_name)
+            path = os.path.join(folder, image_name)
+            image = cv2.imread(path)
 
             #display image
             keypoints = op.get_keypoints(image)
             poses_dict[image_name] = keypoints
 
-            color_thief = ColorThief(folder + image_name)
+            color_thief = ColorThief(path)
             palette = color_thief.get_palette(color_count=6)
             colors_dict[image_name] = palette
 
@@ -37,13 +39,14 @@ def extract_features(folder):
             objects = od.generate_vector(objects)
             objects_dict[image_name] = objects
 
+
             result_image = op.draw_poses(result_image, keypoints)
 
-            cv2.imwrite(folder + "analysis/" + image_name, result_image)
+            cv2.imwrite(os.path.join("temp", "analysis", image_name), result_image)
 
-    cm.save_data(colors_dict)
-    od.save_data(objects_dict)
-    op.save_data(poses_dict)
+    cm.save_data(colors_dict, "temp")
+    od.save_data(objects_dict, "temp")
+    op.save_data(poses_dict, "temp")
     return index
 
 #adds an image to the already existing index
@@ -87,11 +90,13 @@ def add_image(image_path):
     op.save_data(all_keypoints)
 
 
-# extract_features("/home/mortirreke/Desktop/assets/")
+if __name__ == "__main__":
 
-add_image("/home/mortirreke/Pictures/good/L-Davinci_Mona-lisa.jpg")
-add_image("/home/mortirreke/Pictures/good/Margritte_son-of-man.jpg")
-add_image("/home/mortirreke/Pictures/good/Jean-Beraud_Au-Café.jpg")
-add_image("/home/mortirreke/Pictures/good/Diego-Rivera_Self-portrait.jpg")
-add_image("/home/mortirreke/Pictures/good/unknown_unknown.jpg")
+    # extract_features("/home/mortirreke/Desktop/assets/")
+
+    add_image("/home/mortirreke/Pictures/good/L-Davinci_Mona-lisa.jpg")
+    add_image("/home/mortirreke/Pictures/good/Margritte_son-of-man.jpg")
+    add_image("/home/mortirreke/Pictures/good/Jean-Beraud_Au-Café.jpg")
+    add_image("/home/mortirreke/Pictures/good/Diego-Rivera_Self-portrait.jpg")
+    add_image("/home/mortirreke/Pictures/good/unknown_unknown.jpg")
 

@@ -32,8 +32,8 @@ def process_folder(path):
 
 
 
-def save_data(data):
-    file_path = os.path.join(os.path.dirname(__file__), 'output', 'colors.pickle')
+def save_data(data, output_folder):
+    file_path = os.path.join(output_folder, 'output', 'colors.pickle')
     with open(file_path, 'wb') as handle:
         pickle.dump(data, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
