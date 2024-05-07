@@ -43,7 +43,7 @@ WORKDIR /openpose
 RUN git clone https://github.com/CMU-Perceptual-Computing-Lab/openpose.git .
 RUN git checkout 2034f9c07526b885c16ba94eec4a4bd6cc8787c3
 
-COPY models/ /openpose/models
+COPY models/ /openpose/models/pose/body_25/
 
 #build it
 WORKDIR /openpose/build
@@ -70,10 +70,13 @@ RUN cd  /openpose/build/python/openpose && make install
 # copy local files \
 WORKDIR /app
 COPY . /app
-
+RUN python3 config.py
 RUN cp -r /openpose/models/ /app/pose_matching/
 
-RUN mkdir -p /app/temp
+
+
+# COPY High_Renaissance/ /app/data/high_renaissance
 
 EXPOSE 3785
-CMD ["python3", "main.py"]
+
+CMD ["python3", "extract_features.py"]
