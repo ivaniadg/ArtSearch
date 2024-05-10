@@ -79,4 +79,4 @@ RUN cp -r /openpose/models/ /app/pose_matching/
 
 EXPOSE 3785
 
-CMD ["python3", "main.py"]
+CMD ["python3", "extract_features.py"]

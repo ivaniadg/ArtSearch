@@ -1,32 +1,5 @@
 version: "3.3"
 services:
-  user_app1:
-    image: user_app1:lastest
-    build:
-      context: ./frontend/user_app1
-      dockerfile: Dockerfile
-    links:
-      - analytics_app
-    ports:
-      - "3786:80"
-  user_app2:
-    image: user_app2:lastest
-    build:
-      context: ./frontend/user_app2
-      dockerfile: Dockerfile
-    links:
-      - analytics_app
-    ports:
-      - "3891:80"
-  user_app3:
-    image: user_app3:lastest
-    build:
-      context: ./frontend/user_app3
-      dockerfile: Dockerfile
-    links:
-      - analytics_app
-    ports:
-      - "3892:80"
   user_app4:
     image: user_app4:lastest
     build:
@@ -36,6 +9,9 @@ services:
       - analytics_app
     ports:
       - "3896:80"
+    networks:
+      - private
+      - public
   analytics_app:
     image: analytics_app:lastest
     build:
@@ -48,6 +24,8 @@ services:
       - redis
     depends_on:
       - redis
+    networks:
+      - private
   celery:
     image: celery
     build:
@@ -58,11 +36,15 @@ services:
     depends_on:
       - analytics_app
       - redis
+    networks:
+      - private
   redis:
       image: "redis:alpine"
       command: --port 3894
       ports:
         - "3894:3894"
+      networks:
+        - private
   analytics_db:
     image: analytics_db:latest
     build: 
@@ -75,6 +57,8 @@ services:
     command: -p 3895
     volumes:
       - db-data:/var/lib/postgresql/data
+    networks:
+      - private
   backend:
     image: backend:lastest
     build:
@@ -82,5 +66,13 @@ services:
       dockerfile: Dockerfile
     ports:
       - "3785:3785"
+    networks:
+      - private
+      - public
 volumes:
   db-data:
+
+networks:
+  public:
+  private:
+    internal: true
