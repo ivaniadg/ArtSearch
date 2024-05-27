@@ -203,6 +203,8 @@ def analyzePose(image):
 def precalc_analyzePose(image_name):
     poses = get_all_keypoints()
     poses = poses.get(image_name, [])
+    if isinstance(poses, dict):
+        poses = poses['']
 
     #load image from precalculated_images
     image = cv2.imread("precalculated_images/" + image_name)
@@ -395,8 +397,10 @@ def calculate_matches_improved(query_poses: dict):
 
     for query_pose in query_poses:
         for image_name, poses in images.items():
-            best_score = float('-inf')
+            best_score = 0
             # Calculate the similarity score between the query pose and each pose in the image
+            if isinstance(poses, dict):
+                poses = poses.get("", [])
             for pose in poses:
 
                 score = similarity_score2(query_pose, pose)

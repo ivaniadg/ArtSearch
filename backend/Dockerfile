@@ -69,8 +69,10 @@ RUN cd  /openpose/build/python/openpose && make install
 
 # copy local files \
 WORKDIR /app
-COPY . /app
+COPY config.py /app/
 RUN python3 config.py
+
+COPY . /app
 RUN cp -r /openpose/models/ /app/pose_matching/
 
 
@@ -79,4 +81,4 @@ RUN cp -r /openpose/models/ /app/pose_matching/
 
 EXPOSE 3785
 
-CMD ["python3", "main.py"]
+CMD ["python3", "-u", "main.py"]
