@@ -22,8 +22,8 @@ def extract_features(folder):
         if image_name.endswith(".png") or image_name.endswith(".jpg") or image_name.endswith(".jpeg"):
             # print progress
             # print("Processing image " + str(i) + " of " + str(len(os.listdir(folder))))
-            if i == 3:
-                break
+            # if i == 3:
+            #    break
             path = os.path.join(folder, image_name)
             image = cv2.imread(path)
 
