@@ -88,7 +88,7 @@
         >
           <img
             :src="
-              'https://stthesis.blob.core.windows.net/assets/assets/' +
+              'https://storage.googleapis.com/artwork_search/original_images/' +
               result.image_name
             "
             fit
@@ -459,7 +459,7 @@ export default defineComponent({
     openDialog(result) {
       this.userLogger.addAction({'name': 'openDialog', 'image': result.metadata.title})
       this.dialogImage =
-        "https://stthesis.blob.core.windows.net/assets/assets/" +
+        "https://storage.googleapis.com/artwork_search/original_images/" +
         result.image_name;
       this.colorMatch = result.color_score;
       this.poseMatch = result.pose_score;
@@ -471,7 +471,7 @@ export default defineComponent({
       this.dialogOpen = true;
       this.showAnalysis = false;
       this.analysisImage =
-      "https://stthesis.blob.core.windows.net/assets/analysis/" +
+      "https://storage.googleapis.com/artwork_search/precalculated_images/" +
       result.image_name;
     },
 

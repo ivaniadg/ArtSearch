@@ -31,7 +31,7 @@
       v-show="!isProcessing"
     >
     <q-card>
-          <q-img src="artwork/unknown_unknown.jpg" :ratio="1" />
+          <q-img src="artwork/{{this.default_image}}" :ratio="1" />
     </q-card>
       <div v-if="picture">
         <q-img :src="queryImage" style="width: 100%" />
@@ -70,7 +70,7 @@ export default defineComponent({
     // Get all image names from assets/artwork
     const artwork = require.context("../../public/artwork", false, /\.(png|jpe?g|svg)$/);
     var artworks = artwork.keys().map((key) => key.match(/[^/]+$/)[0]);
-
+    var default_image = "andrea-mantegna_the-resurrection-of-christ.jpg"
     // give every artwork a bool selected
     artworks = ref(artworks.map((artwork) => {
       return {
@@ -99,7 +99,7 @@ export default defineComponent({
         value: 0.5,
       },
     });
-    return { axes, picture: ref(null), isProcessing: ref(false), queryImage: ref(null), userLogger, artworks, custom: ref(false), dialog: ref(true) };
+    return { axes, picture: ref(null), isProcessing: ref(false), queryImage: ref(null), userLogger, artworks, custom: ref(false), dialog: ref(true) , default_image};
   },
   methods: {
     selectImage(artwork) {
@@ -146,7 +146,7 @@ export default defineComponent({
     },
     sumitPrecalculated(){
       const formData = new FormData();
-      formData.append("image_name", "unknown_unknown.jpg");
+      formData.append("image_name", this.default_image);
       formData.append("pose_weight", this.axes.pose.value);
       formData.append("color_weight", this.axes.color.value);
       formData.append("object_weight", this.axes.objects.value);
@@ -156,7 +156,7 @@ export default defineComponent({
       localStorage.setItem("ObjectWeight", this.axes.objects.value);
 
       this.isProcessing = true;
-      localStorage.setItem("queryImage", "artwork/unknown_unknown.jpg");
+      localStorage.setItem("queryImage", "artwork/" + this.default_image);
       const backend_server = process.env.BACKEND_SERVER;
       // log submission
       this.userLogger.addAction({'name': 'Submit search', 'Pose weight': this.axes.pose.value, 'Color weight': this.axes.color.value, 'Object weight': this.axes.objects.value})
@@ -281,9 +281,9 @@ export default defineComponent({
       const formData = new FormData();
       this.isProcessing = true;
       // log advanced settings
-      this.userLogger.addAction({'name': 'clicked on advanced settings', 'Image': "unknown_unknown.jpg"})
-      localStorage.setItem("queryImage",  "artwork/unknown_unknown.jpg");
-      formData.append("image_name", "unknown_unknown.jpg");
+      this.userLogger.addAction({'name': 'clicked on advanced settings', 'Image': this.default_image})
+      localStorage.setItem("queryImage",  "artwork/" + this.default_image);
+      formData.append("image_name", this.default_image);
       const backend_server = process.env.BACKEND_SERVER;
       axios
         .post(
