@@ -313,6 +313,7 @@ export default defineComponent({
   name: "IndexPage",
   setup() {
     const userID = localStorage.getItem("userID");
+    const queryImageName = localStorage.getItem("queryImageName")
     const analytics_server = process.env.ANALYTICS_SERVER;
 
     var userLogger = new UserLogger( analytics_server ,
@@ -384,6 +385,7 @@ export default defineComponent({
       topX,
       timer: ref(0),
       timerInterval: null,
+      queryImageName
     };
   },
   mounted(){

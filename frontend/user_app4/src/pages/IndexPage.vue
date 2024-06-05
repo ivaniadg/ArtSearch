@@ -31,7 +31,7 @@
       v-show="!isProcessing"
     >
     <q-card>
-          <q-img src="artwork/{{this.default_image}}" :ratio="1" />
+          <q-img :src="'https://storage.googleapis.com/artwork_search/original_images/' + queryImageName" :ratio="1" />
     </q-card>
       <div v-if="picture">
         <q-img :src="queryImage" style="width: 100%" />
@@ -154,9 +154,9 @@ export default defineComponent({
       localStorage.setItem("PoseWeight", this.axes.pose.value);
       localStorage.setItem("ColorWeight", this.axes.color.value);
       localStorage.setItem("ObjectWeight", this.axes.objects.value);
-
+      localStorage.setItem("queryImageName", this.default_image);
       this.isProcessing = true;
-      localStorage.setItem("queryImage", "artwork/" + this.default_image);
+      localStorage.setItem("queryImage", "https://storage.googleapis.com/artwork_search/original_images/" + this.default_image);
       const backend_server = process.env.BACKEND_SERVER;
       // log submission
       this.userLogger.addAction({'name': 'Submit search', 'Pose weight': this.axes.pose.value, 'Color weight': this.axes.color.value, 'Object weight': this.axes.objects.value})
@@ -282,7 +282,7 @@ export default defineComponent({
       this.isProcessing = true;
       // log advanced settings
       this.userLogger.addAction({'name': 'clicked on advanced settings', 'Image': this.default_image})
-      localStorage.setItem("queryImage",  "artwork/" + this.default_image);
+      localStorage.setItem("queryImage",  "https://storage.googleapis.com/artwork_search/original_images/" + this.default_image);
       formData.append("image_name", this.default_image);
       const backend_server = process.env.BACKEND_SERVER;
       axios
