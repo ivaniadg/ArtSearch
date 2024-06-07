@@ -4,3 +4,11 @@ Frontend/public/assets/
 frontend/analytics_app/__pycache__/
 frontend/analytics_app/venv/
 .Rproj.user
+backend/High_Renaissance/
+backend/High_Renaissance.zip
+backend/temp
+backend/precalculated_images
+backend/precalculated_images.zip
+*.pyc
+key.json
+.idea/

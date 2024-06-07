@@ -77,7 +77,7 @@ RUN cp -r /openpose/models/ /app/pose_matching/
 
 
 
-# COPY High_Renaissance/ /app/data/high_renaissance
+COPY High_Renaissance/ /app/data/high_renaissance
 
 EXPOSE 3785
 
